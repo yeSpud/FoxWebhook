@@ -33,9 +33,10 @@ class BlogHandler:
 
     def __init__(self, blog_url: str, token: str):
         """
-        Constructor for the blog handler. All that is needed for creation is the blog url, and the tumblr API token.
-        :param blog_url: TODO
-        :param token: TODO
+        Constructor for the blog handler.
+        All that is needed for creation is the blog url, and the tumblr API token.
+        :param blog_url: The url of the tumblr blog that will be queried for new posts.
+        :param token: The tumblr API token used to authenticate with the tumblr API.
         """
 
         # Create an api object for querying the tumblr api.
@@ -57,14 +58,14 @@ class BlogHandler:
         Checks for a new blog post by comparing the current one to the previous post stored in memory.
         If there is a new post this function will return True.
         If there isn't a new post then the function will return False.
-        :return: TODO
+        :return: Returns True if there is a new post from the blog, or False if there is no new post.
         """
 
         try:
             # Get the most recent post.
             post: BlogHandler.Posts = self.get_most_recent_post()
 
-        # TODO Documentation
+        # If there is any exception thrown log the error and return False (no new post).
         except Exception as e:
             Logger.log_error(str(e))
             return False
@@ -84,24 +85,26 @@ class BlogHandler:
     def get_most_recent_post(self) -> Posts:
         """
         Gets the most recent post from the blog by querying the blog url with a limit of 1.
-        :return: TODO
+        :return: Returns the most recent Post from the blog.
         """
 
-        # TODO Comment
+        # Try just calling the get_number_of_posts function but pass 1 as the argument.
+        # Then just return the first item in the list.
         try:
-            # Just call the get_number_of_posts function but pass 1 as the argument.
-            # Then just return the first item in the list.
             return self.get_number_of_posts(1)[0]
 
+        # If there is any exception raised its likely caused by the fact that there was no post returned,
+        # and so the list has a size of 0. Because of this, getting the first entry in the list will cause an exception.
+        # If this happens simply log the error, and then change the type of exception to an index error.
         except Exception as e:
             Logger.log_error(str(e))
             raise IndexError("List appears to be empty, so there may have been an issue getting the posts.")
 
-    def get_number_of_posts(self, number: int) -> List[Posts]:  # TODO Test me
+    def get_number_of_posts(self, number: int) -> List[Posts]:
         """
         Get the most recent (specified number of) posts.
-        :param number: TODO
-        :return: TODO
+        :param number: The number of posts to get from the blog. Must be at least 1 or higher.
+        :return: A list of Post objects retrieved from the blog.
         """
 
         # Create a list of posts to be returned.
@@ -113,12 +116,12 @@ class BlogHandler:
         # Create a post object using each of the posts from the blog, and then add them to the returned posts list.
         for entry in all_posts:
 
-            # TODO Comment
+            # Try to create and add a new Post object to the posts list.
             try:
                 post: BlogHandler.Posts = BlogHandler.Posts(entry)
                 posts.append(post)
 
-            # TODO Comment
+            # If there is any exception just log it.
             except Exception as e:
                 Logger.log_error(str(e))
 
@@ -155,8 +158,8 @@ class DiscordHandler:
         """
         Posts an embed into the webhook's discord channel.
         Whats required is the title of the blog, the avatar of the blog, and finally the post itself.
-        :param blog: TODO
-        :param post: TODO
+        :param blog: The Blog object which corresponds to the tumblr blog that has posted a new... post.
+        :param post: The new Post object from the blog.
         :return: Nothing is returned.
         """
 
