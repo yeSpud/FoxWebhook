@@ -1,55 +1,100 @@
 class Posts:
-    """Object corresponding to a Tumblr post."""
+    """
+    Object corresponding to a Tumblr post.
+    """
 
     blog_name: str = None
-    """The short name used to uniquely identify a blog. Default is None."""
+    """
+    The short name used to uniquely identify a blog.
+    Default is None.
+    """
 
     id: int = 0
-    """The post's unique ID. Default is 0."""
+    """
+    The post's unique ID.
+    Default is 0.
+    """
 
     id_string: str = None
-    """The post's unique ID as a String. For clients that don't support 64-bit integers. Default is None."""
+    """
+    The post's unique ID as a String.
+    For clients that don't support 64-bit integers.
+    Default is None.
+    """
 
     post_url: str = None
-    """The location of the post. Default is None."""
+    """
+    The location of the post.
+    Default is None.
+    """
 
     Type: str = None
-    """The type of post. Default is None."""
+    """
+    The type of post.
+    Default is None.
+    """
 
     timestamp: int = 0
-    """The time of the post, in seconds since the epoch. Default is 0."""
+    """
+    The time of the post, in seconds since the epoch.
+    Default is 0.
+    """
 
     date: str = None
-    """The GMT date and time of the post, as a string. Default is None."""
+    """
+    The GMT date and time of the post, as a string.
+    Default is None.
+    """
 
     format: str = None
-    """The post format: html or markdown. Default is None."""
+    """
+    The post format: html or markdown.
+    Default is None.
+    """
 
     reblog_key: str = None
-    """The key used to reblog this post. Default is None."""
+    """
+    The key used to reblog this post.
+    Default is None.
+    """
 
     tags: list = []
-    """Tags applied to the post. Default is an empty list."""
+    """
+    Tags applied to the post.
+    Default is an empty list.
+    """
 
     bookmarklet: bool = False
-    """Indicates whether the post was created via the Tumblr bookmarklet. Exists only if true. Default is False."""
+    """
+    Indicates whether the post was created via the Tumblr bookmarklet.
+    Exists only if true.
+    Default is False.
+    """
 
     mobile: bool = False
-    """Indicates whether the post was created via mobile/email publishing. Exists only if true. Default is False."""
+    """
+    Indicates whether the post was created via mobile/email publishing.
+    Exists only if true.
+    Default is False.
+    """
 
     source_url: str = None
     """
-    The URL for the source of the content (for quotes, reblogs, etc.). 
-    Exists only if there's a content source. 
+    The URL for the source of the content (for quotes, reblogs, etc.).
+    Exists only if there's a content source.
     Default is None.
     """
 
     source_title: str = None
-    """The title of the source site. Exists only if there's a content source. Default is None."""
+    """
+    The title of the source site.
+    Exists only if there's a content source.
+    Default is None.
+    """
 
     liked: bool = False
     """
-    Indicates if a user has already liked a post or not. 
+    Indicates if a user has already liked a post or not.
     Exists only if the request is fully authenticated with OAuth.
     Default is False.
     """
@@ -62,7 +107,10 @@ class Posts:
     """
 
     total_posts: int = 0
-    """The total number of post available for this request, useful for paginating through results. Default is 0."""
+    """
+    The total number of post available for this request, useful for paginating through results.
+    Default is 0.
+    """
 
     photos: list = []
     """
@@ -77,7 +125,7 @@ class Posts:
     def __init__(self, post_blob: dict):
         """
         Constructor for the Post object.
-        :param post_blob: TODO
+        :param post_blob: The json dict containing all the information of the post.
         """
 
         self.blog_name = post_blob.get("blog_name")
@@ -103,28 +151,53 @@ class Posts:
 
 
 class Blog:
-    """Object containing all the information corresponding to a Tumblr blog."""
+    """
+    Object containing all the information corresponding to a Tumblr blog.
+    """
 
     title: str = None
-    """The display title of the blog. Default is None."""
+    """
+    The display title of the blog.
+    Default is None.
+    """
 
     posts: int = 0
-    """The total number of posts to this blog. Default is 0."""
+    """
+    The total number of posts to this blog.
+    Default is 0.
+    """
 
     name: str = None
-    """The short blog name that appears before tumblr.com in a standard blog hostname. Default is None."""
+    """
+    The short blog name that appears before tumblr.com in a standard blog hostname.
+    Default is None.
+    """
 
     updated: int = 0
-    """The time of the most recent post, in seconds since the epoch. Default is 0."""
+    """
+    The time of the most recent post, in seconds since the epoch.
+    Default is 0.
+    """
 
     description: str = None
-    """You guessed it! The blog's description. Default is None."""
+    """
+    You guessed it!
+    The blog's description.
+    Default is None.
+    """
 
     ask: bool = False
-    """Indicates whether the blog allows questions. Default is False."""
+    """
+    Indicates whether the blog allows questions.
+    Default is False.
+    """
 
     ask_anon: bool = False
-    """Indicates whether the blog allows anonymous questions; returned only if ask is true. Default is False."""
+    """
+    Indicates whether the blog allows anonymous questions;
+    returned only if ask is true.
+    Default is False.
+    """
 
     likes: int = 0
     """
@@ -134,28 +207,28 @@ class Blog:
 
     is_blocked_from_primary: bool = False
     """
-    Indicates whether this blog has been blocked by the calling user's primary blog; 
+    Indicates whether this blog has been blocked by the calling user's primary blog;
     returned only if there is an authenticated user making this call.
     Default is False.
     """
 
     avatar: list = []
     """
-    An array of avatar objects, each a different size, which should each have a width, height, and URL. 
+    An array of avatar objects, each a different size, which should each have a width, height, and URL.
     Default is an empty array.
     """
 
     timezone: str = None
     """
-    The blog's configured timezone, such as "US/Eastern". 
-    Only viewable by blog member. 
+    The blog's configured timezone, such as "US/Eastern".
+    Only viewable by blog member.
     Partial response field ONLY.
     Default is None.
     """
 
     timezone_offset: str = None
     """
-    The blog's configured timezone as a GMT offset such as "GMT+0800". 
+    The blog's configured timezone as a GMT offset such as "GMT+0800".
     Only viewable by blog member. Partial response field ONLY.
     Default is None.
     """
@@ -163,12 +236,12 @@ class Blog:
     def __init__(self, returned_blob: dict):
         """
         Constructor for the blog object.
-        :param returned_blob: TODO
+        :param returned_blob: The json dict containing all the information of the blog.
         """
 
         blog_blob: dict = returned_blob.get("blog")
         """
-        Dictionary of the json returned by the blog. 
+        Dictionary of the json returned by the blog.
         Used as a shortcut within the constructor to complete the variables for the blog object.
         """
 
