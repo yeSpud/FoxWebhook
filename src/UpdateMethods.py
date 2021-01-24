@@ -60,14 +60,14 @@ class UpdateMethods:
 
                         # Get the discord handler and use it to post the new post from the blog.
                         discord_channel: DiscordHandler = item.get("discord")
-                        discord_channel.post_new_update(blog.blog, blog.previousPost)
+                        discord_channel.post_new_update(blog.blog, blog.previousPost)  # FIXME
 
                 # Once all items have been iterated through just sleep for 60 seconds.
                 sleep(60)
 
             # If there is any exception during the loop be sure to log it and break out of the loop.
             except Exception as e:
-                Logger.log_error(str(e))
+                Logger.log_error(e)
                 break
 
         # If we are able to make it out of the loop throw a new exception.

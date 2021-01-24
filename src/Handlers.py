@@ -67,7 +67,7 @@ class BlogHandler:
 
         # If there is any exception thrown log the error and return False (no new post).
         except Exception as e:
-            Logger.log_error(str(e))
+            Logger.log_error(e)
             return False
 
         # Check if the new post doesnt match the previous post.
@@ -97,7 +97,7 @@ class BlogHandler:
         # and so the list has a size of 0. Because of this, getting the first entry in the list will cause an exception.
         # If this happens simply log the error, and then change the type of exception to an index error.
         except Exception as e:
-            Logger.log_error(str(e))
+            Logger.log_error(e)
             raise IndexError("List appears to be empty, so there may have been an issue getting the posts.")
 
     def get_number_of_posts(self, number: int) -> List[Posts]:
@@ -123,7 +123,7 @@ class BlogHandler:
 
             # If there is any exception just log it.
             except Exception as e:
-                Logger.log_error(str(e))
+                Logger.log_error(e)
 
         # Return the retrieved posts.
         return posts
@@ -175,19 +175,10 @@ class DiscordHandler:
         # Set the timestamp in the footer - just because.
         embed.set_timestamp()
 
-        # The library that we are using does something weird.
-        # Rather than just attaching the embed, sending off the request, and then disposing of it,
-        # it keeps the embed around for future use.
-        # Because of this, we will add the embed to the request, execute the request,
-        # and then remove the embed (should be at index 0).
         self.webhook.add_embed(embed)
         Logger.write_to_file("Sending embed to channel...")
-        response_code = self.webhook.execute()[0]
-        self.webhook.remove_embed(0)
 
-        # If the status code from the response is not good (200 - 204), log the code (and response) to the file.
-        if response_code.status_code not in [200, 204]:
-            Logger.write_to_file("Response code from embed was " + response_code)
+        self.execute()
 
     def post_message(self, message: str):
         """
@@ -201,14 +192,42 @@ class DiscordHandler:
 
         # Send the message to the channel.
         Logger.write_to_file("Sending message to channel...")
-        response_code = self.webhook.execute()[0]
+        self.execute()
 
-        # Be sure to reset the message content.
-        self.webhook.set_content("")
+    def execute(self):
+        """
+        TODO Documentation
+        :return:
+        """
 
-        # If the status code from the response is not good (200 - 204), log the code (and response) to the file.
-        if response_code.status_code not in [200, 204]:
-            Logger.write_to_file("Response code from sent message was " + response_code)
+        from requests import Response
+
+        response: Response
+        try:
+            response = self.webhook.execute()[0]
+
+        except Exception as error:
+            Logger.log_error(error)
+            return
+
+        try:
+            # The library that we are using does something weird.
+            # Rather than just attaching the embed, sending off the request, and then disposing of it,
+            # it keeps the embed around for future use.
+            # Because of this, we will add the embed to the request, execute the request,
+            # and then remove the embed (should be at index 0).
+            self.webhook.set_content("")
+            self.webhook.remove_embed(0)
+
+        except Exception as error:
+            Logger.log_error(error)
+
+        try:
+            # If the status code from the response is not good (200 - 204), log the code (and response) to the file.
+            if response.status_code not in [200, 204]:
+                Logger.write_to_file("Response code from embed was " + str(response.status_code))
+        except Exception as responseException:
+            Logger.log_error(responseException)
 
 
 class ConfigHandler:
@@ -291,8 +310,8 @@ class ConfigHandler:
                 fox_web_hooks.append(fwh)
             except self.FoxWebhookException as f:
                 # Print what went wrong :(
-                Logger.log_error("Unable to add FoxWebhook")
-                Logger.log_error(str(f))
+                Logger.write_to_file("Unable to add FoxWebhook")
+                Logger.log_error(f)
 
         # Return our FoxWebHooks
         return fox_web_hooks
@@ -388,11 +407,11 @@ class Logger:
             return True
 
     @staticmethod
-    def log_error(error: str):
+    def log_error(error: Exception):  # TODO Test me
         """
         If an error occurs this method will log the error to the log file.
         This will also include the file and line number at which the error occurred.
-        :param error: The error to be logged to the file (must be passed as a string).
+        :param error: The error to be logged to the file.
         :return: Nothing returned.
         """
 
@@ -407,7 +426,7 @@ class Logger:
         # This information will be appended to the error message.
         _, _, exc_tb = exc_info()
         file_name = path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        output: str = f"ERROR: {error} ({file_name}:{exc_tb.tb_lineno})"
+        output: str = f"ERROR: {type(error).__name__} - {str(error)} ({file_name}:{exc_tb.tb_lineno})"
 
         # Determine the size of the border that will surrounded the message.
         border: str = '=' * len(output)

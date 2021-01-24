@@ -16,7 +16,7 @@ try:
     # Set the webhooks to be what was loaded from the config file.
     fox_webhooks = config.get_web_hooks()
 except Exception as e:
-    Logger.log_error(str(e))
+    Logger.log_error(e)
     exit(-1)
 
 # Create a list to store all the blogs that we are going to be querying from time to time.
@@ -24,7 +24,7 @@ foo: List[dict] = []
 try:
     foo = UpdateMethods.init(fox_webhooks=fox_webhooks)
 except Exception as e:
-    Logger.log_error(str(e))
+    Logger.log_error(e)
     exit(-2)
 
 
@@ -35,6 +35,6 @@ except KeyboardInterrupt:
     Logger.write_to_file("Requested to halt.")
     exit(0)
 except Exception as e:
-    Logger.log_error(str(e))
+    Logger.log_error(e)
 
 Logger.write_to_file("Exiting...")

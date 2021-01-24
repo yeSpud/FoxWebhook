@@ -11,7 +11,6 @@ try:
 
     # Set the webhooks to be what was loaded from the config file.
     webhooks = config.get_web_hooks()
-    print(webhooks)
 except Exception as e:
     print(e)
     exit(-1)
