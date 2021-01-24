@@ -175,9 +175,11 @@ class DiscordHandler:
         # Set the timestamp in the footer - just because.
         embed.set_timestamp()
 
+        # Add the embed to the webhook
         self.webhook.add_embed(embed)
         Logger.write_to_file("Sending embed to channel...")
 
+        # Send it to the discord channel
         self.execute()
 
     def post_message(self, message: str):
@@ -196,26 +198,28 @@ class DiscordHandler:
 
     def execute(self):
         """
-        TODO Documentation
-        :return:
+        Sends the embed or message to the discord channel.
+        :return: Nothing is returned.
         """
 
+        # Setup the requests variable here before the gauntlet of try-excepts.
         from requests import Response
-
         response: Response
-        try:
-            response = self.webhook.execute()[0]
 
+        try:
+            # Try sending the message to the discord channel.
+            response = self.webhook.execute()[0]
         except Exception as error:
+            # If there was any exception thrown log it and return early.
             Logger.log_error(error)
             return
 
         try:
-            # The library that we are using does something weird.
+            # The library that is used does something weird.
             # Rather than just attaching the embed, sending off the request, and then disposing of it,
             # it keeps the embed around for future use.
             # Because of this, we will add the embed to the request, execute the request,
-            # and then remove the embed (should be at index 0).
+            # and then remove the embed (should be at index 0) and remove the content.
             self.webhook.set_content("")
             self.webhook.remove_embed(0)
 
@@ -407,7 +411,7 @@ class Logger:
             return True
 
     @staticmethod
-    def log_error(error: Exception):  # TODO Test me
+    def log_error(error: Exception):
         """
         If an error occurs this method will log the error to the log file.
         This will also include the file and line number at which the error occurred.
