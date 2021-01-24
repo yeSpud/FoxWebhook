@@ -54,7 +54,7 @@ class FoxWebhook:
             raise FoxWebhookException("Token provided is incorrect type!")
 
 
-class FoxWebhookException:
+class FoxWebhookException(AttributeError):
     """
     Custom error class for being raised when there is an issue with FoxWebhooks.
     """

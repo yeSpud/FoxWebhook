@@ -67,7 +67,7 @@ class UpdateMethods:
 
             # If there is any exception during the loop be sure to log it and break out of the loop.
             except Exception as e:
-                Logger.log_error(str(e))
+                Logger.log_error(e)
                 break
 
         # If we are able to make it out of the loop throw a new exception.
