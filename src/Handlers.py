@@ -158,6 +158,7 @@ class DiscordHandler:
         """
         Posts an embed into the webhook's discord channel.
         Whats required is the title of the blog, the avatar of the blog, and finally the post itself.
+        If there is an issue getting the post url then a message will be posted instead.
         :param blog: The Blog object which corresponds to the tumblr blog that has posted a new... post.
         :param post: The new Post object from the blog.
         :return: Nothing is returned.
@@ -169,8 +170,16 @@ class DiscordHandler:
         # Abuse the author portion to use it as the title for the embed, as well as using it for the icon avatar.
         embed.set_author(name=f"{blog.title} has a new post!", url=post.post_url, icon_url=blog.avatar[0].get("url"))
 
+        # Make sure the post has a photo attached. If there isn't send a message instead.
+        if post.photos is None:
+            self.post_message(f"{blog.title} has a new post, but I can't seem to access the image :(")
+            return
+
+        # Get the photo url
+        photo_url = post.photos[0].get("original_size").get("url")
+
         # Set the large image area to be that of the post from the blog.
-        embed.set_image(url=post.photos[0].get("original_size").get("url"))
+        embed.set_image(url=photo_url)
 
         # Set the timestamp in the footer - just because.
         embed.set_timestamp()
