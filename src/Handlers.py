@@ -172,6 +172,7 @@ class DiscordHandler:
 
         # Make sure the post has a photo attached. If there isn't send a message instead.
         if post.photos is None:
+            Logger.write_to_file("Cannot get image from post!")
             self.post_message(f"{blog.title} has a new post, but I can't seem to access the image :(")
             return
 
@@ -230,7 +231,8 @@ class DiscordHandler:
             # Because of this, we will add the embed to the request, execute the request,
             # and then remove the embed (should be at index 0) and remove the content.
             self.webhook.set_content("")
-            self.webhook.remove_embed(0)
+            if len(self.webhook.embeds > 0):
+                self.webhook.remove_embed(0)
 
         except Exception as error:
             Logger.log_error(error)
