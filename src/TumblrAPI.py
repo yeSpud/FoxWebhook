@@ -1,3 +1,39 @@
+from typing import List
+from pytumblr import TumblrRestClient, helpers
+
+
+class NPFTumblrRestClient(TumblrRestClient):
+    """
+    Used to fix the tumblr rest client from not supporting npf in its release.
+    Maybe once they release the next version it'll be fixed :)
+    """
+
+    @helpers.validate_blogname
+    def posts(self, blogname, type=None, **kwargs):
+        """
+        Gets a list of posts from a particular blog
+
+        :param blogname: a string, the blogname you want to look up posts
+        :param id: an int, the id of the post you are looking for on the blog
+        :param tag: a string, the tag you are looking for on posts
+        :param limit: an int, the number of results you want
+        :param offset: an int, the offset of the posts you want to start at.
+        :param before: an int, the timestamp for posts you want before.
+        :param filter: the post format you want returned: HTML, text or raw.
+        :param type: the type of posts you want returned, e.g. video. If omitted returns all post types.
+        :param npf: Whether or not to use the Neue Post Format specification
+
+        :returns: a dict created from the JSON response
+        """
+        if type is None:
+            url = '/v2/blog/{}/posts'.format(blogname)
+        else:
+            url = '/v2/blog/{}/posts/{}'.format(blogname, type)
+        return self.send_api_request("get", url, kwargs,
+                                     ['id', 'tag', 'limit', 'offset', 'before', 'reblog_info', 'notes_info', 'filter',
+                                      'api_key', 'npf'], True)
+
+
 class Posts:
     """
     Object corresponding to a Tumblr post.
@@ -112,15 +148,7 @@ class Posts:
     Default is 0.
     """
 
-    photos: list = []
-    """
-    Photo objects with properties:
-        * caption: str (user supplied caption for the individual photo).
-        * alt_sizes: list (alternate photo sizes) each with:
-            * width: int (width of the photo, in pixels).
-            * height: int (height of the photo, in pixels).
-            * url: str (Location of the photo file (either a JPG, GIF, or PNG)).
-    """
+    content: List[dict] = []
 
     def __init__(self, post_blob: dict):
         """
@@ -145,9 +173,7 @@ class Posts:
         self.liked = post_blob.get("liked", False)
         self.state = post_blob.get("state")
         self.total_posts = post_blob.get("total_posts")
-
-        # Legacy
-        self.photos = post_blob.get("photos")
+        self.content = post_blob.get("content")
 
 
 class Blog:
