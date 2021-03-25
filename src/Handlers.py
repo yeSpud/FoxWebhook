@@ -5,8 +5,7 @@ class BlogHandler:
     """
 
     # Since this is the only place we are using the Tumblr API, only import the library here.
-    from pytumblr import TumblrRestClient
-    from src.TumblrAPI import Posts, Blog
+    from src.TumblrAPI import Posts, Blog, NPFTumblrRestClient
     from typing import List
 
     previousPost: Posts = None
@@ -20,7 +19,7 @@ class BlogHandler:
     See the TumblrAPI module for documentation.
     """
 
-    API: TumblrRestClient = None
+    API: NPFTumblrRestClient = None
     """
     Class used to interact with the Tumblr API.
     """
@@ -40,7 +39,7 @@ class BlogHandler:
         """
 
         # Create an api object for querying the tumblr api.
-        self.API = self.TumblrRestClient(consumer_key=token)
+        self.API = self.NPFTumblrRestClient(consumer_key=token)
 
         # Because the blog url is not maintained by the API we store it as one of the object's variables.
         self.blog_url = blog_url
@@ -111,7 +110,7 @@ class BlogHandler:
         posts: BlogHandler.List[BlogHandler.Posts] = []
 
         # Create a list of posts from the blog (with a limit).
-        all_posts: list = self.API.posts(self.blog_url, limit=number).get("posts")
+        all_posts: list = self.API.posts(blogname=self.blog_url, type="photo", limit=number, npf=True).get("posts")
 
         # Create a post object using each of the posts from the blog, and then add them to the returned posts list.
         for entry in all_posts:
@@ -171,16 +170,32 @@ class DiscordHandler:
         embed.set_author(name=f"{blog.title} has a new post!", url=post.post_url, icon_url=blog.avatar[0].get("url"))
 
         # Make sure the post has a photo attached. If there isn't send a message instead.
-        if post.photos is None:
+        if len(post.content) < 1:
             Logger.write_to_file("Cannot get image from post!")
             self.post_message(f"{blog.title} has a new post, but I can't seem to access the image :(")
             return
 
-        # Get the photo url
-        photo_url = post.photos[0].get("original_size").get("url")
+        # Get the first content block that is of image type.
+        content_block: dict = {}
+        for block in post.content:
+            if block.get("type") == "image":
+                content_block = block
+                break
+
+        # Make sure the content block is the right size.
+        if len(content_block) == 0:
+            Logger.write_to_file("Unable to retrieve photo from content block!")
+            self.post_message(f"{blog.title} has a new post, but I can't seem to access the image :(")
+            return
+
+        # Get all the photo urls from the content block.
+        photos: list = content_block.get("media")
+
+        # Get the first photo (usually the biggest).
+        photo: dict = photos[0]
 
         # Set the large image area to be that of the post from the blog.
-        embed.set_image(url=photo_url)
+        embed.set_image(url=photo.get("url"), width=photo.get("width"), height=photo.get("height"))
 
         # Set the timestamp in the footer - just because.
         embed.set_timestamp()
