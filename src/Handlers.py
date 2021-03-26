@@ -5,8 +5,7 @@ class BlogHandler:
     """
 
     # Since this is the only place we are using the Tumblr API, only import the library here.
-    from pytumblr import TumblrRestClient
-    from src.TumblrAPI import Posts, Blog
+    from src.TumblrAPI import Posts, Blog, NPFTumblrRestClient
     from typing import List
 
     previousPost: Posts = None
@@ -20,7 +19,7 @@ class BlogHandler:
     See the TumblrAPI module for documentation.
     """
 
-    API: TumblrRestClient = None
+    API: NPFTumblrRestClient = None
     """
     Class used to interact with the Tumblr API.
     """
@@ -40,7 +39,7 @@ class BlogHandler:
         """
 
         # Create an api object for querying the tumblr api.
-        self.API = self.TumblrRestClient(consumer_key=token)
+        self.API = self.NPFTumblrRestClient(consumer_key=token)
 
         # Because the blog url is not maintained by the API we store it as one of the object's variables.
         self.blog_url = blog_url
@@ -111,7 +110,7 @@ class BlogHandler:
         posts: BlogHandler.List[BlogHandler.Posts] = []
 
         # Create a list of posts from the blog (with a limit).
-        all_posts: list = self.API.posts(self.blog_url, limit=number).get("posts")
+        all_posts: list = self.API.posts(blogname=self.blog_url, type="photo", limit=number, npf=True).get("posts")
 
         # Create a post object using each of the posts from the blog, and then add them to the returned posts list.
         for entry in all_posts:
@@ -158,6 +157,7 @@ class DiscordHandler:
         """
         Posts an embed into the webhook's discord channel.
         Whats required is the title of the blog, the avatar of the blog, and finally the post itself.
+        If there is an issue getting the post url then a message will be posted instead.
         :param blog: The Blog object which corresponds to the tumblr blog that has posted a new... post.
         :param post: The new Post object from the blog.
         :return: Nothing is returned.
@@ -169,8 +169,33 @@ class DiscordHandler:
         # Abuse the author portion to use it as the title for the embed, as well as using it for the icon avatar.
         embed.set_author(name=f"{blog.title} has a new post!", url=post.post_url, icon_url=blog.avatar[0].get("url"))
 
+        # Make sure the post has a photo attached. If there isn't send a message instead.
+        if len(post.content) < 1:
+            Logger.write_to_file("Cannot get image from post!")
+            self.post_message(f"{blog.title} has a new post, but I can't seem to access the image :(")
+            return
+
+        # Get the first content block that is of image type.
+        content_block: dict = {}
+        for block in post.content:
+            if block.get("type") == "image":
+                content_block = block
+                break
+
+        # Make sure the content block is the right size.
+        if len(content_block) == 0:
+            Logger.write_to_file("Unable to retrieve photo from content block!")
+            self.post_message(f"{blog.title} has a new post, but I can't seem to access the image :(")
+            return
+
+        # Get all the photo urls from the content block.
+        photos: list = content_block.get("media")
+
+        # Get the first photo (usually the biggest).
+        photo: dict = photos[0]
+
         # Set the large image area to be that of the post from the blog.
-        embed.set_image(url=post.photos[0].get("original_size").get("url"))
+        embed.set_image(url=photo.get("url"), width=photo.get("width"), height=photo.get("height"))
 
         # Set the timestamp in the footer - just because.
         embed.set_timestamp()
@@ -221,7 +246,8 @@ class DiscordHandler:
             # Because of this, we will add the embed to the request, execute the request,
             # and then remove the embed (should be at index 0) and remove the content.
             self.webhook.set_content("")
-            self.webhook.remove_embed(0)
+            if len(self.webhook.embeds > 0):
+                self.webhook.remove_embed(0)
 
         except Exception as error:
             Logger.log_error(error)
