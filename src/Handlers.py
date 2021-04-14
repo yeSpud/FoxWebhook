@@ -233,7 +233,7 @@ class DiscordHandler:
 
         try:
             # Try sending the message to the discord channel.
-            response = self.webhook.execute()[0]
+            response = self.webhook.execute()  # FIXME
         except Exception as error:
             # If there was any exception thrown log it and return early.
             Logger.log_error(error)
@@ -400,21 +400,28 @@ class Logger:
         if message == Logger.previous_message:
             return
 
-        # Open the log file stream in append mode in order to write to the file.
-        f = open(Logger.file, 'a')
+        # Try to open the log file stream in append mode in order to write to the file.
+        f = None
+        try:
+            f = open(Logger.file, 'a')
+        except Exception as e:
+            print(f"File does not exist: {e}")
 
-        from datetime import datetime
-        # Get the current date and time of the message.
-        # Formatted as: Hour:Minute:Second - Day-Month-Year.
-        now = datetime.now().strftime("%H:%M:%S - %b-%d-%Y")
+        # Only write to the file if it was opened successfully
+        if f:
+            from datetime import datetime
+            # Get the current date and time of the message.
+            # Formatted as: Hour:Minute:Second - Day-Month-Year.
+            now = datetime.now().strftime("%H:%M:%S - %b-%d-%Y")
 
-        # Write the timestamp and the message to the log file, and print the message.
-        f.write(f"{now}:\t{message}\n")
+            # Write the timestamp and the message to the log file, and print the message.
+            f.write(f"{now}:\t{message}\n")
+
+            # Flush and close the log file.
+            f.flush()
+            f.close()
+
         print(message)
-
-        # Flush and close the log file.
-        f.flush()
-        f.close()
 
         # Finally update the previous message.
         Logger.previous_message = message
