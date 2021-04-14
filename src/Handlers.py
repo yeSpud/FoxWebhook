@@ -233,7 +233,7 @@ class DiscordHandler:
 
         try:
             # Try sending the message to the discord channel.
-            response = self.webhook.execute()  # FIXME
+            response = self.webhook.execute()
         except Exception as error:
             # If there was any exception thrown log it and return early.
             Logger.log_error(error)
