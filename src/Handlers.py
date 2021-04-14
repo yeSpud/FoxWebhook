@@ -246,7 +246,7 @@ class DiscordHandler:
             # Because of this, we will add the embed to the request, execute the request,
             # and then remove the embed (should be at index 0) and remove the content.
             self.webhook.set_content("")
-            if len(self.webhook.embeds > 0):
+            if len(self.webhook.embeds) > 0:
                 self.webhook.remove_embed(0)
 
         except Exception as error:
