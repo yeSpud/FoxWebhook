@@ -12,6 +12,6 @@ FetchContent_MakeAvailable(cpr)
 
 include_directories(${RAPIDJSON_INCLUDE_DIR})
 
-add_executable(FoxWebhook main.cpp src/FoxWebhook.cpp src/FoxWebhook.hpp src/TumblrAPI.cpp src/TumblrAPI.hpp)
+add_executable(FoxWebhook main.cpp src/FoxWebhook.cpp src/FoxWebhook.hpp src/TumblrAPI.cpp src/TumblrAPI.hpp src/DiscordWebhook.cpp src/DiscordWebhook.hpp)
 add_dependencies(FoxWebhook rapidjson)
 target_link_libraries(FoxWebhook PRIVATE cpr::cpr)
