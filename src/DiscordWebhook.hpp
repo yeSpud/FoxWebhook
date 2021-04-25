@@ -6,7 +6,7 @@
 #define FOXWEBHOOK_DISCORDWEBHOOK_HPP
 
 #include <cpr/cpr.h>
-
+#include <rapidjson/document.h>
 #include <utility>
 
 
@@ -19,22 +19,23 @@ private:
 	 */
 	const std::string webhookURL;
 
-	std::string message;
 
-	std::string embed;
+	cpr::Response sendWebhook(const std::string &json);
 
-	cpr::Response sendWebhook();
+	static std::string formatJson(const std::string &message, const std::string &blogname,
+	                              const std::string &postURL, const std::string &blogAvatar,
+	                              const std::string &postImageURL);
 
 public:
 
-	explicit DiscordWebhook(std::string webhookURL):webhookURL(std::move(webhookURL)){};
+	explicit DiscordWebhook(std::string webhookURL) : webhookURL(std::move(webhookURL)) {};
 
 	/**
 	 * TODO Documentation
 	 * @param message
 	 * @return
 	 */
-	cpr::Response sendMessage(const std::string& message);
+	cpr::Response sendMessage(const std::string &message);
 
 	/**
 	 * TODO Documentation
@@ -44,7 +45,8 @@ public:
 	 * @param postImageURL
 	 * @return
 	 */
-	cpr::Response sendEmbed(const std::string& blogname, const std::string& postURL, const std::string& blogAvatar, const std::string& postImageURL);
+	cpr::Response sendEmbed(const std::string &blogname, const std::string &postURL, const std::string &blogAvatar,
+	                        const std::string &postImageURL);
 
 };
 

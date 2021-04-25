@@ -10,9 +10,10 @@ int main() {
 	// Iterate through each FoxWebhook.
 	for (FoxWebhook foxWebhook : foxWebhooks) {
 
-		// For now just print the most recent post url.
+
 		Post post = foxWebhook.getTumblrAPI().getMostRecentPost();
-		std::cout << post.getContent()[0].getUrl() << std::endl;
+
+		foxWebhook.getDiscordWebhook().sendEmbed(post.getBlog_name(), post.getPost_url(), post.getContent()[0].getUrl(), post.getContent()[0].getUrl());
 	}
 
 	return 0;
