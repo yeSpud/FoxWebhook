@@ -5,12 +5,8 @@
 #ifndef FOXWEBHOOK_FOXWEBHOOK_HPP
 #define FOXWEBHOOK_FOXWEBHOOK_HPP
 
-#include <string>
-#include <utility>
-#include <vector>
 #include "Tumblr/TumblrAPI.hpp"
 #include "DiscordWebhook.hpp"
-#include "rapidjson/document.h"
 
 class FoxWebhook {
 

@@ -5,10 +5,11 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include "DiscordWebhook.hpp"
+#include <iostream>
 
 cpr::Response DiscordWebhook::sendWebhook(const std::string &json) {
 
-	//std::cout << json << std::endl;
+	std::cout << json << std::endl;
 
 	cpr::Body body = cpr::Body{json};
 	cpr::Header header = cpr::Header{{"Image-Type", "application/json"}};
@@ -50,7 +51,7 @@ std::string DiscordWebhook::formatJson(const std::string &message, const std::st
 		rapidjson::Value embedObject(rapidjson::kObjectType);
 
 		rapidjson::Value authorObject(rapidjson::kObjectType);
-		setStringKeyValueObject("name", blogname, authorObject, document.GetAllocator());
+		setStringKeyValueObject("name", blogname + " has a new post!", authorObject, document.GetAllocator());
 		setStringKeyValueObject("url", postURL, authorObject, document.GetAllocator());
 		setStringKeyValueObject("icon_url", blogAvatar, authorObject, document.GetAllocator());
 		embedObject.AddMember("author", authorObject, document.GetAllocator());

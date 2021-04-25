@@ -5,9 +5,9 @@
 #ifndef FOXWEBHOOK_TUMBLRAPI_HPP
 #define FOXWEBHOOK_TUMBLRAPI_HPP
 
-#include <string>
 #include <utility>
 #include <cpr/cpr.h>
+#include "Blog.hpp"
 #include "Post.hpp"
 
 class TumblrAPI {
@@ -57,7 +57,7 @@ public:
 	 * TODO Documentation
 	 * @return
 	 */
-	cpr::Response getBlogInfo();
+	Blog getBlogInfo();
 
 	/**
 	 * TODO Documentation

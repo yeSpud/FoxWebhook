@@ -66,7 +66,7 @@ int FoxWebhook::parseJSON(const std::string& json, std::vector<FoxWebhook>& webh
 		}
 
 		// Get the current entry object.
-		rapidjson::GenericObject entry = entries[i].GetObject();
+		rapidjson::GenericObject entry = entries[i].GetObj();
 
 		// Try parsing the 3 main variables that we care about (webhook, blog, auth).
 		std::string webhook, blog, auth;

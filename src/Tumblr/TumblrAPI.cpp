@@ -34,7 +34,7 @@ std::vector<Post> TumblrAPI::getPosts(unsigned int number) {
 
 	// Get the response section of the request (if it has it).
 	if (document.HasMember("response")) {
-		rapidjson::GenericObject response = document["response"].GetObject();
+		rapidjson::GenericObject response = document["response"].GetObj();
 
 		// Gets the posts array from the response.
 		if (response.HasMember("posts")) {
@@ -54,8 +54,25 @@ std::vector<Post> TumblrAPI::getPosts(unsigned int number) {
 	return posts;
 }
 
-cpr::Response TumblrAPI::getBlogInfo() {
-	return sendRequest("blog/" + blogURL + "/info", true);
+Blog TumblrAPI::getBlogInfo() {
+	rapidjson::Document document;
+	Blog blog;
+
+	cpr::Response json = sendRequest("blog/" + blogURL + "/info", true);
+	document.Parse(json.text.c_str());
+
+	if (document.HasMember("response")) {
+		rapidjson::GenericObject response = document["response"].GetObj();
+
+		if (response.HasMember("blog")) {
+			rapidjson::StringBuffer buffer;
+			rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+			response["blog"].Accept(writer);
+			blog = Blog(buffer.GetString());
+		}
+	}
+
+	return blog;
 }
 
 cpr::Response TumblrAPI::getBlogAvatar() {

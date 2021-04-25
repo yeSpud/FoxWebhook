@@ -7,18 +7,21 @@ int main() {
 	std::vector<FoxWebhook> foxWebhooks;
 	FoxWebhook::loadFromConfig(foxWebhooks);
 
+
 	// Iterate through each FoxWebhook.
 	for (FoxWebhook foxWebhook : foxWebhooks) {
 
-		//std::cout << foxWebhook.getDiscordWebhook().sendMessage("Testing with just a message...").text << std::endl;
-
-		Post post = foxWebhook.getTumblrAPI().getMostRecentPost();
-
-		std::cout << foxWebhook.getTumblrAPI().getBlogInfo().text << std::endl;
+		std::cout << foxWebhook.getDiscordWebhook().sendMessage("Testing with just a message...").text << std::endl;
 
 		/*
-		std::cout << foxWebhook.getDiscordWebhook().sendEmbed(post.getBlog_name(), post.getPost_url(),
-		                                                      post.getContent()[0].getUrl(),
+		Post post = foxWebhook.getTumblrAPI().getMostRecentPost();
+
+		Blog blog = foxWebhook.getTumblrAPI().getBlogInfo();
+
+		std::cout << blog.getTitle() << std::endl;
+
+		std::cout << foxWebhook.getDiscordWebhook().sendEmbed(blog.getTitle(), post.getPost_url(),
+		                                                      blog.getAvatars()[0].getUrl(),
 		                                                      post.getContent()[0].getUrl()).text << std::endl;
 		                                                      */
 	}

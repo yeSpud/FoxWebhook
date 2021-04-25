@@ -6,13 +6,19 @@
 #define FOXWEBHOOK_POST_HPP
 
 #include "Image.hpp"
-
+#include <vector>
 
 class Post {
 
 public:
 
 	explicit Post(const std::string &postJson);
+
+	static std::string getString(rapidjson::Document &entry, const std::string &value, std::string defaultValue);
+
+	static uint64_t getInt(rapidjson::Document &entry, const std::string &value);
+
+	static bool getBool(rapidjson::Document &entry, const std::string &value);
 
 	std::string getType() { return type; };
 
@@ -57,12 +63,6 @@ public:
 	bool getDisplay_avatar() { return display_avatar; };
 
 private:
-
-	static std::string getString(rapidjson::Document &entry, const std::string &value, std::string defaultValue);
-
-	static uint64_t getInt(rapidjson::Document &entry, const std::string &value);
-
-	static bool getBool(rapidjson::Document &entry, const std::string &value);
 
 	std::string type;
 

@@ -3,7 +3,6 @@
 //
 
 #include "Post.hpp"
-#include <iostream>
 
 Post::Post(const std::string &postJson) {
 
@@ -29,7 +28,7 @@ Post::Post(const std::string &postJson) {
 	should_open_in_legacy = getBool(document, "should_open_in_legacy");
 	note_count = getInt(document, "note_count");
 
-	// TODO Image
+	// Image
 	if (document.HasMember("content")) {
 		for (const auto& contentEntry : document["content"].GetArray()) {
 			if (contentEntry.HasMember("media")) {
@@ -56,8 +55,8 @@ Post::Post(const std::string &postJson) {
 
 						bool has_original_dimensions = mediaEntry.HasMember("has_original_dimensions");
 
-						Image c = Image(media_key, width, height, url, has_original_dimensions);
-						content.push_back(c);
+						Image image = Image(media_key, width, height, url, has_original_dimensions);
+						content.push_back(image);
 					}
 				}
 			}
