@@ -5,10 +5,9 @@
 #ifndef FOXWEBHOOK_POST_HPP
 #define FOXWEBHOOK_POST_HPP
 
-#include <string>
 #include <vector>
-#include "content/Content.hpp"
-#include <rapidjson/document.h>
+#include "Content.hpp"
+
 
 class Post {
 

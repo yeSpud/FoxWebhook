@@ -7,6 +7,7 @@ include(ExternalProject)
 include("${CMAKE_SOURCE_DIR}/vendor/rapidjson.cmake")
 #include("${CMAKE_SOURCE_DIR}/vendor/cpr.cmake")
 include(FetchContent)
+set(CPR_BUILD_TESTS_SSL OFF)
 FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/whoshuu/cpr.git GIT_TAG origin/master)
 FetchContent_MakeAvailable(cpr)
 

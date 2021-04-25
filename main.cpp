@@ -11,7 +11,8 @@ int main() {
 	for (FoxWebhook foxWebhook : foxWebhooks) {
 
 		// For now just print the most recent post url.
-		std::cout << foxWebhook.getTumblrAPI().getMostRecentPost().getPost_url() << std::endl;
+		Post post = foxWebhook.getTumblrAPI().getMostRecentPost();
+		std::cout << post.getContent()[0].getUrl() << std::endl;
 	}
 
 	return 0;

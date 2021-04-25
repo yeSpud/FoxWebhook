@@ -30,6 +30,39 @@ Post::Post(const std::string &postJson) {
 	note_count = getInt(document, "note_count");
 
 	// TODO Content
+	if (document.HasMember("content")) {
+		for (const auto& contentEntry : document["content"].GetArray()) {
+			if (contentEntry.HasMember("media")) {
+				for (const auto& mediaEntry : contentEntry["media"].GetArray()) {
+					if (mediaEntry.IsObject()) {
+						std::string media_key, url;
+						unsigned int width, height;
+
+						if (!Content::entryHasString(mediaEntry, "media_key", media_key)) {
+							continue;
+						}
+
+						if (!Content::entryHasInt(mediaEntry, "width", width)) {
+							continue;
+						}
+
+						if (!Content::entryHasInt(mediaEntry, "height", height)) {
+							continue;
+						}
+
+						if (!Content::entryHasString(mediaEntry, "url", url)) {
+							continue;
+						}
+
+						bool has_original_dimensions = mediaEntry.HasMember("has_original_dimensions");
+
+						Content c = Content(media_key, width, height, url, has_original_dimensions);
+						content.push_back(c);
+					}
+				}
+			}
+		}
+	}
 
 	can_like = getBool(document, "can_like");
 	can_reblog = getBool(document, "can_reblog");
