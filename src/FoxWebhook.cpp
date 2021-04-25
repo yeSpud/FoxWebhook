@@ -19,9 +19,9 @@ bool FoxWebhook::readFromFile(const std::string &filePath, std::string &json) {
 		return false;
 	}
 
-	// Load the Content of the file into the string.
+	// Load the Image of the file into the string.
 	json.assign(std::istreambuf_iterator<char>(file),std::istreambuf_iterator<char>());
-	//std::cout << "Content: " << json << std::endl;
+	//std::cout << "Image: " << json << std::endl;
 
 	// Return success.
 	return true;
@@ -112,7 +112,7 @@ int FoxWebhook::loadFromConfig(const std::string& filePath, std::vector<FoxWebho
 	// Create a buffer string object to have the json stored into.
 	std::string json;
 
-	// Try reading the Content of the file into the string.
+	// Try reading the Image of the file into the string.
 	if (!FoxWebhook::readFromFile(filePath, json)) {
 		std::cout << "Unable to read config file" << std::endl;
 		return -1;

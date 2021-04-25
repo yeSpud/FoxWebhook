@@ -5,8 +5,7 @@
 #ifndef FOXWEBHOOK_POST_HPP
 #define FOXWEBHOOK_POST_HPP
 
-#include <vector>
-#include "Content.hpp"
+#include "Image.hpp"
 
 
 class Post {
@@ -45,7 +44,7 @@ public:
 
 	uint64_t getNote_count() { return note_count; };
 
-	std::vector<Content> getContent() { return content; };
+	std::vector<Image> getContent() { return content; };
 
 	bool getCan_like() { return can_like; };
 
@@ -99,7 +98,7 @@ private:
 
 	uint64_t note_count;
 
-	std::vector<Content> content;
+	std::vector<Image> content;
 
 	// const auto layout;
 

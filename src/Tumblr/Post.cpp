@@ -29,7 +29,7 @@ Post::Post(const std::string &postJson) {
 	should_open_in_legacy = getBool(document, "should_open_in_legacy");
 	note_count = getInt(document, "note_count");
 
-	// TODO Content
+	// TODO Image
 	if (document.HasMember("content")) {
 		for (const auto& contentEntry : document["content"].GetArray()) {
 			if (contentEntry.HasMember("media")) {
@@ -38,25 +38,25 @@ Post::Post(const std::string &postJson) {
 						std::string media_key, url;
 						unsigned int width, height;
 
-						if (!Content::entryHasString(mediaEntry, "media_key", media_key)) {
+						if (!Image::entryHasString(mediaEntry, "media_key", media_key)) {
 							continue;
 						}
 
-						if (!Content::entryHasInt(mediaEntry, "width", width)) {
+						if (!Image::entryHasInt(mediaEntry, "width", width)) {
 							continue;
 						}
 
-						if (!Content::entryHasInt(mediaEntry, "height", height)) {
+						if (!Image::entryHasInt(mediaEntry, "height", height)) {
 							continue;
 						}
 
-						if (!Content::entryHasString(mediaEntry, "url", url)) {
+						if (!Image::entryHasString(mediaEntry, "url", url)) {
 							continue;
 						}
 
 						bool has_original_dimensions = mediaEntry.HasMember("has_original_dimensions");
 
-						Content c = Content(media_key, width, height, url, has_original_dimensions);
+						Image c = Image(media_key, width, height, url, has_original_dimensions);
 						content.push_back(c);
 					}
 				}

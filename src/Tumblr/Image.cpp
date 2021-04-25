@@ -2,9 +2,9 @@
 // Created by Spud on 4/24/2021.
 //
 
-#include "Content.hpp"
+#include "Image.hpp"
 
-bool Content::entryHasString(const rapidjson::Value &entry, const char *value, std::string &buffer) {
+bool Image::entryHasString(const rapidjson::Value &entry, const char *value, std::string &buffer) {
 	if (entry.HasMember(value)) {
 		buffer = entry[value].GetString();
 		return true;
@@ -13,7 +13,7 @@ bool Content::entryHasString(const rapidjson::Value &entry, const char *value, s
 	}
 }
 
-bool Content::entryHasInt(const rapidjson::Value &entry, const char *value, unsigned &buffer) {
+bool Image::entryHasInt(const rapidjson::Value &entry, const char *value, unsigned &buffer) {
 	if (entry.HasMember(value)) {
 		buffer = entry[value].GetUint();
 		return true;

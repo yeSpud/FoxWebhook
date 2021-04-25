@@ -2,7 +2,6 @@
 // Created by Spud on 4/24/2021.
 //
 
-#include <iostream>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include "DiscordWebhook.hpp"
@@ -12,7 +11,7 @@ cpr::Response DiscordWebhook::sendWebhook(const std::string &json) {
 	//std::cout << json << std::endl;
 
 	cpr::Body body = cpr::Body{json};
-	cpr::Header header = cpr::Header{{"Content-Type", "application/json"}};
+	cpr::Header header = cpr::Header{{"Image-Type", "application/json"}};
 	cpr::Response response = cpr::Post(cpr::Url{webhookURL}, body, header, cpr::VerifySsl(false));
 
 	return response;
@@ -43,9 +42,7 @@ std::string DiscordWebhook::formatJson(const std::string &message, const std::st
 	document.SetObject();
 
 	if (!message.empty()) {
-		rapidjson::Value messageText(rapidjson::kStringType);
-		messageText.SetString(message.c_str(), document.GetAllocator());
-		document.AddMember("content", messageText, document.GetAllocator());
+		setStringKeyValueObject("content", message, document, document.GetAllocator());
 	}
 
 	if (!blogname.empty() && !postURL.empty() && !blogAvatar.empty() && !postImageURL.empty()) {
@@ -53,21 +50,13 @@ std::string DiscordWebhook::formatJson(const std::string &message, const std::st
 		rapidjson::Value embedObject(rapidjson::kObjectType);
 
 		rapidjson::Value authorObject(rapidjson::kObjectType);
-		rapidjson::Value name(rapidjson::kStringType);
-		name.SetString(blogname.c_str(), document.GetAllocator());
-		authorObject.AddMember("name", name, document.GetAllocator());
-		rapidjson::Value blogposturl(rapidjson::kStringType);
-		blogposturl.SetString(postURL.c_str(), document.GetAllocator());
-		authorObject.AddMember("url", blogposturl, document.GetAllocator());
-		rapidjson::Value blogiconurl(rapidjson::kStringType);
-		blogiconurl.SetString(blogAvatar.c_str(), document.GetAllocator());
-		authorObject.AddMember("icon_url", blogiconurl, document.GetAllocator());
+		setStringKeyValueObject("name", blogname, authorObject, document.GetAllocator());
+		setStringKeyValueObject("url", postURL, authorObject, document.GetAllocator());
+		setStringKeyValueObject("icon_url", blogAvatar, authorObject, document.GetAllocator());
 		embedObject.AddMember("author", authorObject, document.GetAllocator());
 
 		rapidjson::Value imageObject(rapidjson::kObjectType);
-		rapidjson::Value imageurl(rapidjson::kStringType);
-		imageurl.SetString(postImageURL.c_str(), document.GetAllocator());
-		imageObject.AddMember("url", imageurl, document.GetAllocator());
+		setStringKeyValueObject("url", postImageURL, imageObject, document.GetAllocator());
 		embedObject.AddMember("image", imageObject, document.GetAllocator());
 
 		embedArray.PushBack(embedObject, document.GetAllocator());
@@ -81,6 +70,15 @@ std::string DiscordWebhook::formatJson(const std::string &message, const std::st
 
 	return buffer.GetString();
 
+}
+
+void DiscordWebhook::setStringKeyValueObject(const std::string &key, const std::string &value, rapidjson::Value &object,
+                                             rapidjson::MemoryPoolAllocator<> &allocator) {
+	rapidjson::Value keyString(rapidjson::kStringType);
+	keyString.SetString(key.c_str(), allocator);
+	rapidjson::Value valueString(rapidjson::kStringType);
+	valueString.SetString(value.c_str(), allocator);
+	object.AddMember(keyString, valueString, allocator);
 }
 
 

@@ -2,18 +2,18 @@
 // Created by Spud on 4/24/2021.
 //
 
-#ifndef FOXWEBHOOK_CONTENT_HPP
-#define FOXWEBHOOK_CONTENT_HPP
+#ifndef FOXWEBHOOK_IMAGE_HPP
+#define FOXWEBHOOK_IMAGE_HPP
 
 #include <string>
 #include <utility>
 #include <rapidjson/document.h>
 
-class Content {
+class Image {
 
 public:
 
-	Content(std::string media_key, unsigned int width, unsigned int height, std::string url,
+	Image(std::string media_key, unsigned int width, unsigned int height, std::string url,
 	        bool has_original_dimensions) : media_key(std::move(media_key)), type("image"), width(width),
 	                                        height(height), url(std::move(url)),
 	                                        has_original_dimensions(has_original_dimensions) {};
@@ -51,4 +51,4 @@ private:
 };
 
 
-#endif //FOXWEBHOOK_CONTENT_HPP
+#endif //FOXWEBHOOK_IMAGE_HPP

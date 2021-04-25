@@ -10,10 +10,17 @@ int main() {
 	// Iterate through each FoxWebhook.
 	for (FoxWebhook foxWebhook : foxWebhooks) {
 
+		//std::cout << foxWebhook.getDiscordWebhook().sendMessage("Testing with just a message...").text << std::endl;
 
 		Post post = foxWebhook.getTumblrAPI().getMostRecentPost();
 
-		foxWebhook.getDiscordWebhook().sendEmbed(post.getBlog_name(), post.getPost_url(), post.getContent()[0].getUrl(), post.getContent()[0].getUrl());
+		std::cout << foxWebhook.getTumblrAPI().getBlogInfo().text << std::endl;
+
+		/*
+		std::cout << foxWebhook.getDiscordWebhook().sendEmbed(post.getBlog_name(), post.getPost_url(),
+		                                                      post.getContent()[0].getUrl(),
+		                                                      post.getContent()[0].getUrl()).text << std::endl;
+		                                                      */
 	}
 
 	return 0;
