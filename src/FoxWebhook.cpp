@@ -3,7 +3,6 @@
 //
 
 #include "FoxWebhook.hpp"
-#include <fstream>
 #include <iostream>
 
 bool FoxWebhook::readFromFile(const std::string &filePath, std::string &json) {
@@ -39,13 +38,13 @@ int FoxWebhook::parseJSON(const std::string& json, std::vector<FoxWebhook>& webh
 	// Check that the parsed json is a valid object.
 	if (!document.IsObject()) {
 		std::cout << "Config is in an invalid format (not a json object)" << std::endl;
-		return -1;
+		return -2;
 	}
 
 	// Check that the json object has an element named "Webhooks".
 	if (!document.HasMember("Webhooks")) {
 		std::cout << "Config is missing 'Webhooks' array" << std::endl;
-		return -2;
+		return -3;
 	}
 
 	// Try to get the json array of webhook information.
@@ -54,7 +53,7 @@ int FoxWebhook::parseJSON(const std::string& json, std::vector<FoxWebhook>& webh
 	// Make the entries is a json array.
 	if (!entries.IsArray()) {
 		std::cout << "'Webhooks' is not an array" << std::endl;
-		return -3;
+		return -4;
 	}
 
 	// Iterate though each entry in the webhooks json array.
@@ -62,7 +61,6 @@ int FoxWebhook::parseJSON(const std::string& json, std::vector<FoxWebhook>& webh
 
 		// If the entry is not an object, skip it.
 		if (!entries[i].IsObject()) {
-
 			std::cout << "Entry is not an object" << std::endl;
 			continue;
 		}
@@ -71,15 +69,27 @@ int FoxWebhook::parseJSON(const std::string& json, std::vector<FoxWebhook>& webh
 
 		// Try parsing the 3 main variables that we care about (webhook, blog, auth).
 		std::string webhook, blog, auth;
-
-		webhook = parseEntry(entry, "WebhookURL");
 		blog = parseEntry(entry, "BlogURL");
 		auth = parseEntry(entry, "Auth");
+		webhook = parseEntry(entry, "WebhookURL");
 
-		// Create a new FoxWebhook object with these values.
-		FoxWebhook foxWebhook(webhook, blog, auth);
+		// Create a new TumblrAPI object from the blog and auth variables.
+		if (auth.empty() || blog.empty()) {
+			std::cout << "Cannot create Tumblr API class" << std::endl;
+			continue;
+		}
+		TumblrAPI tumblrApi = TumblrAPI(auth, blog);
 
-		// Add the webhook to the vector.
+		// Create a new discordWebhook object from the webhook url.
+		if (webhook.empty()) {
+			std::cout << "Cannot create discord webhook class" << std::endl;
+			continue;
+		}
+		DiscordWebhook discordWebhook = DiscordWebhook(webhook);
+
+
+		// Create a new FoxWebhook and add the webhook to the vector.
+		FoxWebhook foxWebhook = FoxWebhook(tumblrApi, discordWebhook);
 		webhooks.push_back(foxWebhook);
 	}
 
@@ -96,30 +106,17 @@ std::string FoxWebhook::parseEntry(const rapidjson::Value& entry, const std::str
 	}
 }
 
-std::vector<FoxWebhook> FoxWebhook::loadFromConfig(const std::string& filePath) {
-
-	// Create a buffer vector to store our webhooks into.
-	std::vector<FoxWebhook> webhooks;
+int FoxWebhook::loadFromConfig(const std::string& filePath, std::vector<FoxWebhook>& foxWebhooks) {
 
 	// Create a buffer string object to have the json stored into.
 	std::string json;
 
 	// Try reading the content of the file into the string.
-	// If there was an error, return the empty vector.
 	if (!FoxWebhook::readFromFile(filePath, json)) {
 		std::cout << "Unable to read config file" << std::endl;
-		return webhooks;
+		return -1;
 	}
 
 	// Try parsing the config file into our buffer of webhooks.
-	if (FoxWebhook::parseJSON(json, webhooks) != 0) {
-
-		// Because we were unable to parse the webhooks, clear the vector and return it empty (as the entries could be bad).
-		std::cout << "Unable to parse webhooks" << std::endl;
-		webhooks.clear();
-		return webhooks;
-	}
-
-	// Return our vector of webhooks.
-	return webhooks;
+	return FoxWebhook::parseJSON(json, foxWebhooks);
 }

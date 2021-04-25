@@ -8,59 +8,55 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "TumblrAPI.hpp"
+#include "DiscordWebhook.hpp"
 #include "rapidjson/document.h"
 
 class FoxWebhook {
 
 public:
 
-	/**
-	 * TODO Documentation
-	 * @return
-	 */
-	std::string getWebhookURL() {return webhookURL;}
+	FoxWebhook(TumblrAPI tumblrApi, DiscordWebhook discordWebhook) : tumblrApi(std::move(tumblrApi)),
+	                                                                 discordWebhook(std::move(discordWebhook)) {};
 
 	/**
 	 * TODO Documentation
 	 * @return
 	 */
-	std::string getBlogURL() {return blogURL;}
+	TumblrAPI getTumblrAPI() { return tumblrApi; };
 
 	/**
 	 * TODO Documentation
 	 * @return
 	 */
-	std::string getAuth() {return authToken;}
+	DiscordWebhook getDiscordWebhook() { return discordWebhook; };
 
 	/**
 	 * TODO Documentation
 	 * @return
 	 */
-	static std::vector<FoxWebhook> loadFromConfig() { return FoxWebhook::loadFromConfig("../config.json"); };
+	static int loadFromConfig(std::vector<FoxWebhook> &foxWebhooks) {
+		return FoxWebhook::loadFromConfig("../config.json", foxWebhooks);
+	};
 
 	/**
 	 * TODO Documentation
 	 * @param filePath
 	 * @return
 	 */
-	static std::vector<FoxWebhook> loadFromConfig(const std::string &filePath);
+	static int loadFromConfig(const std::string &filePath, std::vector<FoxWebhook> &foxWebhooks);
 
 private:
 
 	/**
 	 * TODO Documentation
 	 */
-	const std::string webhookURL;
+	TumblrAPI tumblrApi;
 
 	/**
 	 * TODO Documentation
 	 */
-	const std::string blogURL;
-
-	/**
-	 * TODO Documentation
-	 */
-	const std::string authToken;
+	DiscordWebhook discordWebhook;
 
 	/**
 	 * TODO Documentation
@@ -86,16 +82,6 @@ private:
 	 */
 	static std::string parseEntry(const rapidjson::Value &entry, const std::string &entryValue);
 
-	/**
-	 * TODO Documentation
-	 * @param webhookURL
-	 * @param blogURL
-	 * @param authToken
-	 */
-	FoxWebhook(std::string webhookURL, std::string blogURL, std::string authToken) : webhookURL(std::move(webhookURL)),
-	                                                                                 blogURL(std::move(blogURL)),
-	                                                                                 authToken(std::move(authToken)) {};
 };
-
 
 #endif //FOXWEBHOOK_FOXWEBHOOK_HPP

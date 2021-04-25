@@ -3,5 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cmake-build-valgrind/_deps/cpr-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-valgrind/_deps/zlib-src" vcs="Git" />
   </component>
 </project>
