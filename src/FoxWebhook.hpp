@@ -8,7 +8,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "TumblrAPI.hpp"
+#include "Tumblr/TumblrAPI.hpp"
 #include "DiscordWebhook.hpp"
 #include "rapidjson/document.h"
 

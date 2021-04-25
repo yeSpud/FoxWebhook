@@ -12,7 +12,7 @@ cpr::Response DiscordWebhook::sendWebhook() {
 	std::string messageJson, embedJson, json;
 
 	if (!message.empty()) {
-		messageJson = R"({"content":")" + message + "\"";
+		messageJson = R"({"Content":")" + message + "\"";
 	}
 
 	if (!embed.empty()) {
@@ -27,7 +27,7 @@ cpr::Response DiscordWebhook::sendWebhook() {
 
 	std::cout << json << std::endl;
 
-	//cpr::Body body =  cpr::Body{R"({"content":"Test","embeds":[{"title":"Programmatic test"}]})"};
+	//cpr::Body body =  cpr::Body{R"({"Content":"Test","embeds":[{"title":"Programmatic test"}]})"};
 	cpr::Body body =  cpr::Body{json};
 
 	cpr::Header header = cpr::Header{{"Content-Type", "application/json"}};
@@ -36,7 +36,7 @@ cpr::Response DiscordWebhook::sendWebhook() {
 
 	//cpr::Part embed = cpr::Part("embeds", R"([{"title":"Embed test"}])", "application/json");
 
-	//cpr::Multipart content = cpr::Multipart{{"content", message}, embed};
+	//cpr::Multipart Content = cpr::Multipart{{"Content", message}, embed};
 
 	cpr::Response response = cpr::Post(cpr::Url{webhookURL},body, header, cpr::VerifySsl(false));
 

@@ -8,6 +8,7 @@
 #include <string>
 #include <utility>
 #include <cpr/cpr.h>
+#include "Post.hpp"
 
 class TumblrAPI {
 
@@ -28,7 +29,7 @@ private:
 	 * @param endpoint
 	 * @return
 	 */
-	cpr::Response sendRequest(const std::string &endpoint, bool authRequired, const std::string& optionalParameters);
+	cpr::Response sendRequest(const std::string &endpoint, bool authRequired, const std::string &optionalParameters);
 
 public:
 
@@ -37,20 +38,20 @@ public:
 	 * @param auth
 	 * @param blogURL
 	 */
-	explicit TumblrAPI(std::string auth, std::string blogURL):token(std::move(auth)), blogURL(std::move(blogURL)){};
+	explicit TumblrAPI(std::string auth, std::string blogURL) : token(std::move(auth)), blogURL(std::move(blogURL)) {};
 
 	/**
 	 * TODO Documentation
 	 * @param number
 	 * @return
 	 */
-	cpr::Response getPosts(unsigned int number);
+	std::vector<Post> getPosts(unsigned int number);
 
 	/**
 	 * TODO Documentation
 	 * @return
 	 */
-	cpr::Response getMostRecentPost(){return getPosts(1);};
+	Post getMostRecentPost() { return getPosts(1)[0]; };
 
 	/**
 	 * TODO Documentation

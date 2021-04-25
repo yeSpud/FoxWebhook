@@ -19,7 +19,7 @@ bool FoxWebhook::readFromFile(const std::string &filePath, std::string &json) {
 		return false;
 	}
 
-	// Load the content of the file into the string.
+	// Load the Content of the file into the string.
 	json.assign(std::istreambuf_iterator<char>(file),std::istreambuf_iterator<char>());
 	//std::cout << "Content: " << json << std::endl;
 
@@ -65,7 +65,8 @@ int FoxWebhook::parseJSON(const std::string& json, std::vector<FoxWebhook>& webh
 			continue;
 		}
 
-		auto entry = entries[i].GetObject();
+		// Get the current entry object.
+		rapidjson::GenericObject entry = entries[i].GetObject();
 
 		// Try parsing the 3 main variables that we care about (webhook, blog, auth).
 		std::string webhook, blog, auth;
@@ -111,7 +112,7 @@ int FoxWebhook::loadFromConfig(const std::string& filePath, std::vector<FoxWebho
 	// Create a buffer string object to have the json stored into.
 	std::string json;
 
-	// Try reading the content of the file into the string.
+	// Try reading the Content of the file into the string.
 	if (!FoxWebhook::readFromFile(filePath, json)) {
 		std::cout << "Unable to read config file" << std::endl;
 		return -1;
