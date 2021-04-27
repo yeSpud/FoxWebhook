@@ -20,14 +20,13 @@ bool FoxWebhook::readFromFile(const std::string &filePath, std::string &json) {
 	}
 
 	// Load the Image of the file into the string.
-	json.assign(std::istreambuf_iterator<char>(file),std::istreambuf_iterator<char>());
-	//std::cout << "Image: " << json << std::endl;
+	json.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
 
 	// Return success.
 	return true;
 }
 
-int FoxWebhook::parseJSON(const std::string& json, std::vector<FoxWebhook>& webhooks) {
+int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webhooks) {
 
 	// Create a document object to parse the json.
 	rapidjson::Document document;
@@ -48,7 +47,7 @@ int FoxWebhook::parseJSON(const std::string& json, std::vector<FoxWebhook>& webh
 	}
 
 	// Try to get the json array of webhook information.
-	const rapidjson::Value& entries = document["Webhooks"];
+	const rapidjson::Value &entries = document["Webhooks"];
 
 	// Make the entries is a json array.
 	if (!entries.IsArray()) {
@@ -98,7 +97,7 @@ int FoxWebhook::parseJSON(const std::string& json, std::vector<FoxWebhook>& webh
 	return 0;
 }
 
-std::string FoxWebhook::parseEntry(const rapidjson::Value& entry, const std::string& entryValue) {
+std::string FoxWebhook::parseEntry(const rapidjson::Value &entry, const std::string &entryValue) { // TODO Comments
 	if (entry.HasMember(entryValue.c_str())) {
 		return entry[entryValue.c_str()].GetString();
 	} else {
@@ -107,7 +106,7 @@ std::string FoxWebhook::parseEntry(const rapidjson::Value& entry, const std::str
 	}
 }
 
-int FoxWebhook::loadFromConfig(const std::string& filePath, std::vector<FoxWebhook>& foxWebhooks) {
+int FoxWebhook::loadFromConfig(const std::string &filePath, std::vector<FoxWebhook> &foxWebhooks) {
 
 	// Create a buffer string object to have the json stored into.
 	std::string json;

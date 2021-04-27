@@ -4,7 +4,7 @@
 
 #include "Post.hpp"
 
-Post::Post(const std::string &postJson) {
+Post::Post(const std::string &postJson) { // TODO Comments
 
 	// Ingest the string as a json DOM
 	rapidjson::Document document;
@@ -30,9 +30,9 @@ Post::Post(const std::string &postJson) {
 
 	// Image
 	if (document.HasMember("content")) {
-		for (const auto& contentEntry : document["content"].GetArray()) {
+		for (const auto &contentEntry : document["content"].GetArray()) {
 			if (contentEntry.HasMember("media")) {
-				for (const auto& mediaEntry : contentEntry["media"].GetArray()) {
+				for (const auto &mediaEntry : contentEntry["media"].GetArray()) {
 					if (mediaEntry.IsObject()) {
 						std::string media_key, url;
 						unsigned int width, height;
@@ -69,11 +69,10 @@ Post::Post(const std::string &postJson) {
 	can_reply = getBool(document, "can_reply");
 	display_avatar = getBool(document, "display_avatar");
 
-	//std::cout << postJson << std::endl;
-
 }
 
-std::string Post::getString(rapidjson::Document &entry, const std::string &value, std::string defaultValue) {
+std::string
+Post::getString(rapidjson::Document &entry, const std::string &value, std::string defaultValue) { // TODO Comments
 	if (entry.HasMember(value.c_str())) {
 		return entry[value.c_str()].GetString();
 	} else {
@@ -81,7 +80,7 @@ std::string Post::getString(rapidjson::Document &entry, const std::string &value
 	}
 }
 
-uint64_t Post::getInt(rapidjson::Document &entry, const std::string &value) {
+uint64_t Post::getInt(rapidjson::Document &entry, const std::string &value) { // TODO Comments
 	if (entry.HasMember(value.c_str())) {
 		return entry[value.c_str()].GetUint64();
 	} else {
@@ -89,7 +88,7 @@ uint64_t Post::getInt(rapidjson::Document &entry, const std::string &value) {
 	}
 }
 
-bool Post::getBool(rapidjson::Document &entry, const std::string &value) {
+bool Post::getBool(rapidjson::Document &entry, const std::string &value) { // TODO Comments
 	if (entry.HasMember(value.c_str())) {
 		return entry[value.c_str()].GetBool();
 	} else {
@@ -97,7 +96,7 @@ bool Post::getBool(rapidjson::Document &entry, const std::string &value) {
 	}
 }
 
-bool Post::operator!=(const Post &p1) {
+bool Post::operator!=(const Post &p1) { // TODO Comments
 	bool idCheck = id == p1.id;
 	bool idStringCheck = id_string == p1.id_string;
 	bool urlCheck = post_url == p1.post_url;

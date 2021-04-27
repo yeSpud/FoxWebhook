@@ -19,7 +19,6 @@ private:
 	 */
 	const std::string webhookURL;
 
-
 	/**
 	 * TODO Documentation
 	 * @param json

@@ -15,7 +15,6 @@ TumblrAPI::sendRequest(const std::string &endpoint, bool authRequired, const std
 		url += "?api_key=" + token;
 	}
 	url += optionalParameters;
-	//std::cout << url << std::endl;
 
 	// Get the response from the URL.
 	cpr::Response response;
@@ -23,7 +22,7 @@ TumblrAPI::sendRequest(const std::string &endpoint, bool authRequired, const std
 	return response;
 }
 
-std::vector<Post> TumblrAPI::getPosts(unsigned int number) {
+std::vector<Post> TumblrAPI::getPosts(unsigned int number) { // TODO Comments
 
 	std::vector<Post> posts;
 	rapidjson::Document document;
@@ -42,7 +41,7 @@ std::vector<Post> TumblrAPI::getPosts(unsigned int number) {
 			for (const auto &entry : response["posts"].GetArray()) {
 				if (entry.IsObject()) {
 					rapidjson::StringBuffer buffer;
-					rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+					rapidjson::Writer <rapidjson::StringBuffer> writer(buffer);
 					entry.Accept(writer);
 					Post post = Post(buffer.GetString());
 					posts.push_back(post);
@@ -54,7 +53,7 @@ std::vector<Post> TumblrAPI::getPosts(unsigned int number) {
 	return posts;
 }
 
-Blog TumblrAPI::getBlogInfo() {
+Blog TumblrAPI::getBlogInfo() { // TODO Comments
 	rapidjson::Document document;
 	Blog blog;
 
@@ -66,7 +65,7 @@ Blog TumblrAPI::getBlogInfo() {
 
 		if (response.HasMember("blog")) {
 			rapidjson::StringBuffer buffer;
-			rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+			rapidjson::Writer <rapidjson::StringBuffer> writer(buffer);
 			response["blog"].Accept(writer);
 			blog = Blog(buffer.GetString());
 		}

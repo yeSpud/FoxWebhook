@@ -4,7 +4,7 @@
 
 #include "Image.hpp"
 
-bool Image::entryHasString(const rapidjson::Value &entry, const char *value, std::string &buffer) {
+bool Image::entryHasString(const rapidjson::Value &entry, const char *value, std::string &buffer) { // TODO Comments
 	if (entry.HasMember(value)) {
 		buffer = entry[value].GetString();
 		return true;
@@ -13,7 +13,7 @@ bool Image::entryHasString(const rapidjson::Value &entry, const char *value, std
 	}
 }
 
-bool Image::entryHasInt(const rapidjson::Value &entry, const char *value, unsigned &buffer) {
+bool Image::entryHasInt(const rapidjson::Value &entry, const char *value, unsigned &buffer) { // TODO Comments
 	if (entry.HasMember(value)) {
 		buffer = entry[value].GetUint();
 		return true;

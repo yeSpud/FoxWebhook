@@ -5,7 +5,7 @@
 #include "Blog.hpp"
 #include "Post.hpp"
 
-Blog::Blog(const std::string &blogJson) {
+Blog::Blog(const std::string &blogJson) { // TODO Comments
 
 	rapidjson::Document document;
 	document.Parse(blogJson.c_str());
@@ -17,7 +17,7 @@ Blog::Blog(const std::string &blogJson) {
 
 	// Avatars
 	if (document.HasMember("avatar")) {
-		for (const auto& avatarEntry : document["avatar"].GetArray()) {
+		for (const auto &avatarEntry : document["avatar"].GetArray()) {
 			if (avatarEntry.IsObject()) {
 				std::string avatarurl;
 				unsigned int width, height;

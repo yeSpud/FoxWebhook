@@ -5,11 +5,8 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include "DiscordWebhook.hpp"
-#include <iostream>
 
-cpr::Response DiscordWebhook::sendWebhook(const std::string &json) {
-
-	std::cout << json << std::endl;
+cpr::Response DiscordWebhook::sendWebhook(const std::string &json) { // TODO Comments
 
 	cpr::Body body = cpr::Body{json};
 	cpr::Header header = cpr::Header{{"Content-Type", "application/json"}};
@@ -19,7 +16,7 @@ cpr::Response DiscordWebhook::sendWebhook(const std::string &json) {
 
 }
 
-cpr::Response DiscordWebhook::sendMessage(const std::string &message) {
+cpr::Response DiscordWebhook::sendMessage(const std::string &message) { // TODO Comments
 
 	std::string json = formatJson(message, "", "", "", "");
 
@@ -28,7 +25,7 @@ cpr::Response DiscordWebhook::sendMessage(const std::string &message) {
 
 cpr::Response
 DiscordWebhook::sendEmbed(const std::string &blogname, const std::string &postURL, const std::string &blogAvatar,
-                          const std::string &postImageURL) {
+                          const std::string &postImageURL) { // TODO Comments
 
 	std::string json = formatJson("", blogname, postURL, blogAvatar, postImageURL);
 
@@ -37,7 +34,7 @@ DiscordWebhook::sendEmbed(const std::string &blogname, const std::string &postUR
 
 std::string DiscordWebhook::formatJson(const std::string &message, const std::string &blogname,
                                        const std::string &postURL, const std::string &blogAvatar,
-                                       const std::string &postImageURL) {
+                                       const std::string &postImageURL) { // TODO Comments
 
 	rapidjson::Document document;
 	document.SetObject();
@@ -65,7 +62,7 @@ std::string DiscordWebhook::formatJson(const std::string &message, const std::st
 	}
 
 	rapidjson::StringBuffer buffer;
-	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+	rapidjson::Writer <rapidjson::StringBuffer> writer(buffer);
 	document.Accept(writer);
 
 
@@ -74,7 +71,7 @@ std::string DiscordWebhook::formatJson(const std::string &message, const std::st
 }
 
 void DiscordWebhook::setStringKeyValueObject(const std::string &key, const std::string &value, rapidjson::Value &object,
-                                             rapidjson::MemoryPoolAllocator<> &allocator) {
+                                             rapidjson::MemoryPoolAllocator<> &allocator) { // TODO Comments
 	rapidjson::Value keyString(rapidjson::kStringType);
 	keyString.SetString(key.c_str(), allocator);
 	rapidjson::Value valueString(rapidjson::kStringType);

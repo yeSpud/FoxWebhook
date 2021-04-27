@@ -17,7 +17,8 @@ public:
 	 * @param tumblrApi
 	 * @param discordWebhook
 	 */
-	FoxWebhook(TumblrAPI tumblrApi, DiscordWebhook discordWebhook):tumblrApi(std::move(tumblrApi)), discordWebhook(std::move(discordWebhook)) {};
+	FoxWebhook(TumblrAPI tumblrApi, DiscordWebhook discordWebhook) : tumblrApi(std::move(tumblrApi)),
+	                                                                 discordWebhook(std::move(discordWebhook)) {};
 
 
 	/**
@@ -34,11 +35,8 @@ public:
 
 	/**
 	 * TODO Documentation
-	 * @return
 	 */
-	//Post getPreviousPost() { return previousPost;};
 	Post previousPost = Post();
-	//void setPreviousPost(Post post) {previousPost = std::move(post);};
 
 	/**
 	 * TODO Documentation
@@ -66,11 +64,6 @@ private:
 	 * TODO Documentation
 	 */
 	DiscordWebhook discordWebhook;
-
-	/**
-	 * TODO Documentation.
-	 */
-	//Post previousPost = Post("");
 
 	/**
 	 * TODO Documentation
