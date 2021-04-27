@@ -96,3 +96,10 @@ bool Post::getBool(rapidjson::Document &entry, const std::string &value) {
 		return false;
 	}
 }
+
+bool Post::operator!=(const Post &p1) {
+	bool idCheck = id == p1.id;
+	bool idStringCheck = id_string == p1.id_string;
+	bool urlCheck = post_url == p1.post_url;
+	return !idCheck && !idStringCheck && !urlCheck;
+}

@@ -5,7 +5,6 @@
 #ifndef FOXWEBHOOK_TUMBLRAPI_HPP
 #define FOXWEBHOOK_TUMBLRAPI_HPP
 
-#include <utility>
 #include <cpr/cpr.h>
 #include "Blog.hpp"
 #include "Post.hpp"

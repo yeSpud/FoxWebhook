@@ -5,7 +5,6 @@
 #ifndef FOXWEBHOOK_BLOG_HPP
 #define FOXWEBHOOK_BLOG_HPP
 
-#include <string>
 #include "Image.hpp"
 #include <vector>
 

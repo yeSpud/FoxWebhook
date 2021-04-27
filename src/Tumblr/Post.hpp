@@ -12,6 +12,10 @@ class Post {
 
 public:
 
+	Post():type("blocks"), original_type("regular"), id(0), id_string("0"),timestamp(0),state("published"),
+	should_open_in_legacy(false), note_count(0), can_like(false),can_reblog(false),
+	can_send_in_message(false), can_reply(false), display_avatar(false){};
+
 	explicit Post(const std::string &postJson);
 
 	static std::string getString(rapidjson::Document &entry, const std::string &value, std::string defaultValue);
@@ -61,6 +65,8 @@ public:
 	bool getCan_reply() { return can_reply; };
 
 	bool getDisplay_avatar() { return display_avatar; };
+
+	bool operator!=(const Post& p);
 
 private:
 
