@@ -53,9 +53,8 @@ int main() {
 				checkForNewPost(foxWebhook);
 			}
 
-			// Wait for 45 seconds before looping...
-			sleep(45);
-			std::cout << "Looping..."<<std::endl;
+			// Wait for 90 seconds before looping...
+			sleep(90);
 		} catch (const std::exception &exception) {
 
 			// Log any exceptions and break from the loop.
