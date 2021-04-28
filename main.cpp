@@ -5,6 +5,7 @@
 #ifdef _WIN32
 
 #include <windows.h> // Windows sleep
+
 #define sleep(seconds){Sleep(seconds * 1000);}
 
 #else
@@ -14,10 +15,10 @@
 #endif
 
 /**
- * TODO Documentation
+ * TODO Documentation & comments
  * @param foxWebhook
  */
-void checkForNewPost(FoxWebhook f) {
+void checkForNewPost(FoxWebhook &f) {
 
 	TumblrAPI t = f.getTumblrAPI();
 	Post p = t.getMostRecentPost();
@@ -39,6 +40,7 @@ int main() {
 	std::vector<FoxWebhook> foxWebhooks;
 	FoxWebhook::loadFromConfig(foxWebhooks);
 
+
 	// Initialize each fox webhook's previous posts.
 	for (FoxWebhook &foxWebhook : foxWebhooks) {
 		Post post = foxWebhook.getTumblrAPI().getMostRecentPost();
@@ -49,7 +51,7 @@ int main() {
 
 		try {
 			// Iterate through each FoxWebhook and check for a new post.
-			for (const FoxWebhook &foxWebhook : foxWebhooks) {
+			for (FoxWebhook &foxWebhook : foxWebhooks) {
 				checkForNewPost(foxWebhook);
 			}
 

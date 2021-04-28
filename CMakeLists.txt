@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.16)
 project(FoxWebhook)
 
-set(CMAKE_CXX_STANDARD 20 -lcurl)
+set(CMAKE_CXX_STANDARD 20)
 
 include(ExternalProject)
 include("${CMAKE_SOURCE_DIR}/vendor/rapidjson.cmake")
