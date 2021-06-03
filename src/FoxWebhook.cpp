@@ -3,6 +3,7 @@
 //
 
 #include "FoxWebhook.hpp"
+#include "ErrorCodes.hpp"
 #include <iostream>
 
 bool FoxWebhook::readFromFile(const std::string &filePath, std::string &json) {
@@ -37,13 +38,13 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 	// Check that the parsed json is a valid object.
 	if (!document.IsObject()) {
 		std::cout << "Config is in an invalid format (not a json object)" << std::endl;
-		return -2;
+		return ErrorCodes::INVALID_JSON_FORMAT;
 	}
 
 	// Check that the json object has an element named "Webhooks".
 	if (!document.HasMember("Webhooks")) {
 		std::cout << "Config is missing 'Webhooks' array" << std::endl;
-		return -3;
+		return ErrorCodes::MISSING_WEBHOOK;
 	}
 
 	// Try to get the json array of webhook information.
@@ -52,7 +53,7 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 	// Make the entries is a json array.
 	if (!entries.IsArray()) {
 		std::cout << "'Webhooks' is not an array" << std::endl;
-		return -4;
+		return ErrorCodes::WEBHOOK_NOT_ARRAY;
 	}
 
 	// Iterate though each entry in the webhooks json array.
@@ -114,7 +115,7 @@ int FoxWebhook::loadFromConfig(const std::string &filePath, std::vector<FoxWebho
 	// Try reading the Image of the file into the string.
 	if (!FoxWebhook::readFromFile(filePath, json)) {
 		std::cout << "Unable to read config file" << std::endl;
-		return -1;
+		return ErrorCodes::CANNOT_READ;
 	}
 
 	// Try parsing the config file into our buffer of webhooks.
@@ -124,7 +125,7 @@ int FoxWebhook::loadFromConfig(const std::string &filePath, std::vector<FoxWebho
 int FoxWebhook::loadFromConfig(std::vector<FoxWebhook> &foxWebhooks) {
 
 	// Get the load status from the file.
-	int status = 0;
+	int status;
 
 	// If the first read was successful return.
 	status = FoxWebhook::loadFromConfig("../config.json", foxWebhooks);
@@ -139,5 +140,5 @@ int FoxWebhook::loadFromConfig(std::vector<FoxWebhook> &foxWebhooks) {
 	}
 
 	// If we've made it this far, return an error.
-	return -1;
+	return status;
 }
