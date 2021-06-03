@@ -120,3 +120,24 @@ int FoxWebhook::loadFromConfig(const std::string &filePath, std::vector<FoxWebho
 	// Try parsing the config file into our buffer of webhooks.
 	return FoxWebhook::parseJSON(json, foxWebhooks);
 }
+
+int FoxWebhook::loadFromConfig(std::vector<FoxWebhook> &foxWebhooks) {
+
+	// Get the load status from the file.
+	int status = 0;
+
+	// If the first read was successful return.
+	status = FoxWebhook::loadFromConfig("../config.json", foxWebhooks);
+	if (status == 0) {
+		return 0;
+	}
+
+	// If we were unsuccessful, try reading from a different (but still common) location.
+	status = FoxWebhook::loadFromConfig("config.json", foxWebhooks);
+	if (status == 0) {
+		return 0;
+	}
+
+	// If we've made it this far, return an error.
+	return -1;
+}
