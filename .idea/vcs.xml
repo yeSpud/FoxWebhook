@@ -6,7 +6,5 @@
     <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/zlib-src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/cpr-src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/zlib-src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cmake-build-wsl-debug/_deps/cpr-src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cmake-build-wsl-debug/_deps/zlib-src" vcs="Git" />
   </component>
 </project>

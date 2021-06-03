@@ -38,8 +38,12 @@ int main() {
 
 	// Load the FoxWebhooks from the config file.
 	std::vector<FoxWebhook> foxWebhooks;
-	FoxWebhook::loadFromConfig(foxWebhooks);
+	int status = FoxWebhook::loadFromConfig(foxWebhooks);
 
+	// If the status from the config was not 0, return the status.
+	if (status != 0) {
+		return status;
+	}
 
 	// Initialize each fox webhook's previous posts.
 	for (FoxWebhook &foxWebhook : foxWebhooks) {
