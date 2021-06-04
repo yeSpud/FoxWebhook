@@ -44,7 +44,7 @@ std::vector<Post> TumblrAPI::getPosts(unsigned int number) { // TODO Comments
 
 	// Get the response section of the request (if it has it).
 	if (document.HasMember("response")) {
-		rapidjson::GenericObject response = document["response"].GetObj();
+		auto response = document["response"].GetObj();
 
 		// Gets the posts array from the response.
 		if (response.HasMember("posts")) {
@@ -72,7 +72,7 @@ Blog TumblrAPI::getBlogInfo() { // TODO Comments
 	document.Parse(json.text.c_str());
 
 	if (document.HasMember("response")) {
-		rapidjson::GenericObject response = document["response"].GetObj();
+		auto response = document["response"].GetObj();
 
 		if (response.HasMember("blog")) {
 			rapidjson::StringBuffer buffer;
