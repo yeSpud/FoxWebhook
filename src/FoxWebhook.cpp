@@ -133,14 +133,14 @@ int FoxWebhook::loadFromConfig(std::vector<FoxWebhook> &foxWebhooks) {
 	int status;
 
 	// If the first read was successful return.
-	logger->debug("Attempting to read config from parent directory...");
+	logger->info("Attempting to read config from parent directory...");
 	status = FoxWebhook::loadFromConfig("../config.json", foxWebhooks);
 	if (status == 0) {
 		return 0;
 	}
 
 	// If we were unsuccessful, try reading from a different (but still common) location.
-	logger->debug("Attempting to read config from current directory...");
+	logger->info("Attempting to read config from current directory...");
 	status = FoxWebhook::loadFromConfig("config.json", foxWebhooks);
 	if (status == 0) {
 		return 0;

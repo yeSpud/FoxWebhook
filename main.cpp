@@ -1,5 +1,4 @@
 #include "src/FoxWebhook.hpp"
-#include <iostream>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
 
@@ -17,6 +16,11 @@
 #endif
 
 /**
+ * TODO Documentation
+ */
+std::shared_ptr<spdlog::logger> logger;
+
+/**
  * TODO Documentation & comments
  * @param foxWebhook
  */
@@ -25,7 +29,9 @@ void checkForNewPost(FoxWebhook &f) {
 	TumblrAPI t = f.getTumblrAPI();
 	Post p = t.getMostRecentPost();
 
+	logger->debug(fmt::format("Comparing post id {} to post id {}", p.getId_string(), f.previousPost.getId_string()));
 	if (p != f.previousPost) {
+		logger->info("New post found! " + p.getPost_url());
 		Blog b = t.getBlogInfo();
 
 		f.getDiscordWebhook().sendEmbed(b.getTitle(), p.getPost_url(), b.getAvatars()[0].getUrl(),
@@ -39,7 +45,7 @@ void checkForNewPost(FoxWebhook &f) {
 int main() {
 
 	// Setup the logger.
-	std::shared_ptr<spdlog::logger> logger = spdlog::basic_logger_st("Logger","log.txt");
+	logger = spdlog::basic_logger_st("Logger", "log.txt");
 	logger->flush_on(spdlog::level::info);
 	spdlog::set_default_logger(logger);
 	spdlog::flush_on(spdlog::level::info);
@@ -59,11 +65,13 @@ int main() {
 	// Initialize each fox webhook's previous posts.
 	for (FoxWebhook &foxWebhook : foxWebhooks) {
 		Post post = foxWebhook.getTumblrAPI().getMostRecentPost();
+		logger->info(fmt::format("Initializing with most recent post ID for {}: {}", post.getBlog_name(),
+		                         post.getId_string()));
+
 		foxWebhook.previousPost = std::move(post);
 	}
 
 	while (true) {
-
 		try {
 			// Iterate through each FoxWebhook and check for a new post.
 			for (FoxWebhook &foxWebhook : foxWebhooks) {
@@ -75,10 +83,12 @@ int main() {
 		} catch (const std::exception &exception) {
 
 			// Log any exceptions and break from the loop.
-			std::cout << "Exception raised: " << exception.what() << std::endl;
+			logger->error(fmt::format("Error occurred! {}", exception.what()));
+			logger->flush();
 			break;
 		}
 	}
 
+	logger->warn("Exiting early!");
 	return 0;
 }

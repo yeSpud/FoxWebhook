@@ -62,7 +62,7 @@ public:
 	 * TODO Documentation
 	 * @return
 	 */
-	cpr::Response getBlogAvatar();
+	cpr::Response getBlogAvatar() { return sendRequest("blog/" + blogURL + "/avatar", false, ""); };
 
 };
 
