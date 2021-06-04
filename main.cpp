@@ -1,5 +1,7 @@
 #include "src/FoxWebhook.hpp"
 #include <iostream>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
 
 // Add sleep function based on OS
 #ifdef _WIN32
@@ -36,14 +38,23 @@ void checkForNewPost(FoxWebhook &f) {
 
 int main() {
 
+	// Setup the logger.
+	std::shared_ptr<spdlog::logger> logger = spdlog::basic_logger_st("Logger","log.txt");
+	logger->flush_on(spdlog::level::info);
+	spdlog::set_default_logger(logger);
+	spdlog::flush_on(spdlog::level::info);
+	logger->info("Starting up script...");
+
 	// Load the FoxWebhooks from the config file.
 	std::vector<FoxWebhook> foxWebhooks;
 	int status = FoxWebhook::loadFromConfig(foxWebhooks);
 
 	// If the status from the config was not 0, return the status.
 	if (status != 0) {
+		logger->error(fmt::format("Unable to load FoxWebhooks: {}", status));
 		return status;
 	}
+	logger->info(fmt::format("Loaded {} FoxWebhook(s) successfully", foxWebhooks.size()));
 
 	// Initialize each fox webhook's previous posts.
 	for (FoxWebhook &foxWebhook : foxWebhooks) {

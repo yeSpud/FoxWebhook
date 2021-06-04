@@ -4,7 +4,7 @@
 
 #include "FoxWebhook.hpp"
 #include "ErrorCodes.hpp"
-#include <iostream>
+#include <spdlog/spdlog.h>
 
 bool FoxWebhook::readFromFile(const std::string &filePath, std::string &json) {
 
@@ -15,12 +15,12 @@ bool FoxWebhook::readFromFile(const std::string &filePath, std::string &json) {
 	// Check if we were successfully able to open the file at this point.
 	if (!file.is_open()) {
 
-		// Print that we were unable to open the file successfully, and return false (error).
-		std::cout << "Unable to open file at " << filePath << std::endl;
+		// Log that we were unable to open the file successfully, and return false (error).
+		spdlog::get("Logger")->error("Unable to open file at " + filePath);
 		return false;
 	}
 
-	// Load the Image of the file into the string.
+	// Load the content of the file into the string.
 	json.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
 
 	// Return success.
@@ -28,6 +28,9 @@ bool FoxWebhook::readFromFile(const std::string &filePath, std::string &json) {
 }
 
 int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webhooks) {
+
+	// Get our logger.
+	std::shared_ptr<spdlog::logger> logger = spdlog::get("Logger");
 
 	// Create a document object to parse the json.
 	rapidjson::Document document;
@@ -37,13 +40,13 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 
 	// Check that the parsed json is a valid object.
 	if (!document.IsObject()) {
-		std::cout << "Config is in an invalid format (not a json object)" << std::endl;
+		logger->warn("Config is in an invalid format (not a json object)");
 		return ErrorCodes::INVALID_JSON_FORMAT;
 	}
 
 	// Check that the json object has an element named "Webhooks".
 	if (!document.HasMember("Webhooks")) {
-		std::cout << "Config is missing 'Webhooks' array" << std::endl;
+		logger->warn("Config is missing 'Webhooks' array");
 		return ErrorCodes::MISSING_WEBHOOK;
 	}
 
@@ -52,7 +55,7 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 
 	// Make the entries is a json array.
 	if (!entries.IsArray()) {
-		std::cout << "'Webhooks' is not an array" << std::endl;
+		logger->warn("'Webhooks' is not an array");
 		return ErrorCodes::WEBHOOK_NOT_ARRAY;
 	}
 
@@ -61,7 +64,7 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 
 		// If the entry is not an object, skip it.
 		if (!entries[i].IsObject()) {
-			std::cout << "Entry is not an object" << std::endl;
+			logger->warn("Entry is not an object");
 			continue;
 		}
 
@@ -76,18 +79,17 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 
 		// Create a new TumblrAPI object from the blog and auth variables.
 		if (auth.empty() || blog.empty()) {
-			std::cout << "Cannot create Tumblr API class" << std::endl;
+			logger->warn("Cannot create Tumblr API class");
 			continue;
 		}
 		TumblrAPI tumblrApi = TumblrAPI(auth, blog);
 
 		// Create a new discordWebhook object from the webhook url.
 		if (webhook.empty()) {
-			std::cout << "Cannot create discord webhook class" << std::endl;
+			logger->warn("Cannot create discord webhook class");
 			continue;
 		}
 		DiscordWebhook discordWebhook = DiscordWebhook(webhook);
-
 
 		// Create a new FoxWebhook and add the webhook to the vector.
 		FoxWebhook foxWebhook = FoxWebhook(tumblrApi, discordWebhook);
@@ -102,7 +104,7 @@ std::string FoxWebhook::parseEntry(const rapidjson::Value &entry, const std::str
 	if (entry.HasMember(entryValue.c_str())) {
 		return entry[entryValue.c_str()].GetString();
 	} else {
-		std::cout << "Missing entry '" << entryValue << '\'' << std::endl;
+		spdlog::get("Logger")->warn("Missing entry '" + entryValue + "'");
 		return "";
 	}
 }
@@ -114,7 +116,7 @@ int FoxWebhook::loadFromConfig(const std::string &filePath, std::vector<FoxWebho
 
 	// Try reading the Image of the file into the string.
 	if (!FoxWebhook::readFromFile(filePath, json)) {
-		std::cout << "Unable to read config file" << std::endl;
+		spdlog::get("Logger")->warn("Unable to read config file");
 		return ErrorCodes::CANNOT_READ;
 	}
 
@@ -124,16 +126,21 @@ int FoxWebhook::loadFromConfig(const std::string &filePath, std::vector<FoxWebho
 
 int FoxWebhook::loadFromConfig(std::vector<FoxWebhook> &foxWebhooks) {
 
+	// Get the logger for our script.
+	std::shared_ptr<spdlog::logger> logger = spdlog::get("Logger");
+
 	// Get the load status from the file.
 	int status;
 
 	// If the first read was successful return.
+	logger->debug("Attempting to read config from parent directory...");
 	status = FoxWebhook::loadFromConfig("../config.json", foxWebhooks);
 	if (status == 0) {
 		return 0;
 	}
 
 	// If we were unsuccessful, try reading from a different (but still common) location.
+	logger->debug("Attempting to read config from current directory...");
 	status = FoxWebhook::loadFromConfig("config.json", foxWebhooks);
 	if (status == 0) {
 		return 0;
