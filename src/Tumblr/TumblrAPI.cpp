@@ -5,9 +5,13 @@
 #include "TumblrAPI.hpp"
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
+#include <spdlog/spdlog.h>
 
 cpr::Response
 TumblrAPI::sendRequest(const std::string &endpoint, bool authRequired, const std::string &optionalParameters = "") {
+
+	// Get our logger.
+	std::shared_ptr<spdlog::logger> logger = spdlog::get("Logger");
 
 	// Format the URL to go to for retrieving data.
 	std::string url = "api.tumblr.com/v2/" + endpoint;
@@ -17,8 +21,15 @@ TumblrAPI::sendRequest(const std::string &endpoint, bool authRequired, const std
 	url += optionalParameters;
 
 	// Get the response from the URL.
+	logger->debug(fmt::format("Querying url: {}", url));
 	cpr::Response response;
 	response = cpr::Get(cpr::Url{url});
+
+	// If check the response code.
+	if (response.status_code != 200) {
+		logger->warn(fmt::format("Status code {} - {}: {}", response.status_code, response.reason, response.text));
+	}
+
 	return response;
 }
 
@@ -33,7 +44,7 @@ std::vector<Post> TumblrAPI::getPosts(unsigned int number) { // TODO Comments
 
 	// Get the response section of the request (if it has it).
 	if (document.HasMember("response")) {
-		rapidjson::GenericObject response = document["response"].GetObj();
+		auto response = document["response"].GetObj();
 
 		// Gets the posts array from the response.
 		if (response.HasMember("posts")) {
@@ -61,7 +72,7 @@ Blog TumblrAPI::getBlogInfo() { // TODO Comments
 	document.Parse(json.text.c_str());
 
 	if (document.HasMember("response")) {
-		rapidjson::GenericObject response = document["response"].GetObj();
+		auto response = document["response"].GetObj();
 
 		if (response.HasMember("blog")) {
 			rapidjson::StringBuffer buffer;
@@ -72,8 +83,4 @@ Blog TumblrAPI::getBlogInfo() { // TODO Comments
 	}
 
 	return blog;
-}
-
-cpr::Response TumblrAPI::getBlogAvatar() {
-	return sendRequest("blog/" + blogURL + "/avatar", false);
 }

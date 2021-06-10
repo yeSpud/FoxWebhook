@@ -42,9 +42,7 @@ public:
 	 * TODO Documentation
 	 * @return
 	 */
-	static int loadFromConfig(std::vector<FoxWebhook> &foxWebhooks) {
-		return FoxWebhook::loadFromConfig("../config.json", foxWebhooks);
-	};
+	static int loadFromConfig(std::vector<FoxWebhook> &foxWebhooks);
 
 	/**
 	 * TODO Documentation
