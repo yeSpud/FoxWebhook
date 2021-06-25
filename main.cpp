@@ -27,7 +27,14 @@ std::shared_ptr<spdlog::logger> logger;
 void checkForNewPost(FoxWebhook &f) {
 
 	TumblrAPI t = f.getTumblrAPI();
-	Post p = t.getMostRecentPost();
+
+	Post p;
+	try {
+		p = t.getMostRecentPost();
+	} catch (const std::exception &exception) {
+		logger->error(fmt::format("Exception getting most recent post: {}", exception.what()));
+		return;
+	}
 
 	logger->debug(fmt::format("Comparing post id {} to post id {}", p.getId_string(), f.previousPost.getId_string()));
 	if (p != f.previousPost) {

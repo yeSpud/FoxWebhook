@@ -23,7 +23,7 @@ TumblrAPI::sendRequest(const std::string &endpoint, bool authRequired, const std
 	// Get the response from the URL.
 	logger->debug(fmt::format("Querying url: {}", url));
 	cpr::Response response;
-	response = cpr::Get(cpr::Url{url});
+	response = cpr::Get(cpr::Url{url}); // FIXME Sometimes returns 0
 
 	// If check the response code.
 	if (response.status_code != 200) {
@@ -40,22 +40,26 @@ std::vector<Post> TumblrAPI::getPosts(unsigned int number) { // TODO Comments
 
 	// Get the json from the network request.
 	cpr::Response json = sendRequest("blog/" + blogURL + "/posts", true, "&npf=true&limit=" + std::to_string(number));
-	document.Parse(json.text.c_str());
 
-	// Get the response section of the request (if it has it).
-	if (document.HasMember("response")) {
-		auto response = document["response"].GetObj();
+	if (json.status_code == 200) {
 
-		// Gets the posts array from the response.
-		if (response.HasMember("posts")) {
+		document.Parse(json.text.c_str());
 
-			for (const auto &entry : response["posts"].GetArray()) {
-				if (entry.IsObject()) {
-					rapidjson::StringBuffer buffer;
-					rapidjson::Writer <rapidjson::StringBuffer> writer(buffer);
-					entry.Accept(writer);
-					Post post = Post(buffer.GetString());
-					posts.push_back(post);
+		// Get the response section of the request (if it has it).
+		if (document.HasMember("response")) {
+			auto response = document["response"].GetObj();
+
+			// Gets the posts array from the response.
+			if (response.HasMember("posts")) {
+
+				for (const auto &entry : response["posts"].GetArray()) {
+					if (entry.IsObject()) {
+						rapidjson::StringBuffer buffer;
+						rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+						entry.Accept(writer);
+						Post post = Post(buffer.GetString());
+						posts.push_back(post);
+					}
 				}
 			}
 		}
@@ -69,16 +73,19 @@ Blog TumblrAPI::getBlogInfo() { // TODO Comments
 	Blog blog;
 
 	cpr::Response json = sendRequest("blog/" + blogURL + "/info", true);
-	document.Parse(json.text.c_str());
 
-	if (document.HasMember("response")) {
-		auto response = document["response"].GetObj();
+	if (json.status_code == 200) {
+		document.Parse(json.text.c_str());
 
-		if (response.HasMember("blog")) {
-			rapidjson::StringBuffer buffer;
-			rapidjson::Writer <rapidjson::StringBuffer> writer(buffer);
-			response["blog"].Accept(writer);
-			blog = Blog(buffer.GetString());
+		if (document.HasMember("response")) {
+			auto response = document["response"].GetObj();
+
+			if (response.HasMember("blog")) {
+				rapidjson::StringBuffer buffer;
+				rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+				response["blog"].Accept(writer);
+				blog = Blog(buffer.GetString());
+			}
 		}
 	}
 
