@@ -5,7 +5,7 @@
 #ifndef FOXWEBHOOK_POST_HPP
 #define FOXWEBHOOK_POST_HPP
 
-#include "Image.hpp"
+#include "Content.hpp"
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include <vector>
@@ -147,7 +147,7 @@ public:
 	 * TODO Documentation
 	 * @return
 	 */
-	std::vector<Image> getContent() { return content; };
+	std::vector<Content::Image> getContent() { return content; };
 
 	/**
 	 * TODO Documentation
@@ -276,7 +276,7 @@ private:
 	/**
 	 * TODO Documentation
 	 */
-	std::vector<Image> content;
+	std::vector<Content::Image> content;
 
 	// const auto layout;
 

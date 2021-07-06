@@ -63,8 +63,20 @@ void checkForNewPost(FoxWebhook &f) {
 		// Generate the blog from the blog json.
 		Blog b = Blog::generateBlog(blogResponse.text.c_str());
 
+		// Get the post image to send.
+		std::vector<Content::Image> content = p.getContent();
+		std::string image = content[0].url;
+
+		// Try overriding the image if a better one is found.
+		for (const Content::Image& newImage : content) {
+			if (newImage.has_original_dimensions) {
+				image = newImage.url;
+				break;
+			}
+		}
+
 		// Send the embed.
-		f.getDiscordWebhook().sendEmbed(b.getTitle(), p.getPost_url(), b.getAvatars()[0].url,p.getContent()[0].getUrl());
+		f.getDiscordWebhook().sendEmbed(b.getTitle(), p.getPost_url(), b.getAvatars()[0].url, image);
 
 		// And finally reset the previous post to the current post.
 		f.previousPost = std::move(p);

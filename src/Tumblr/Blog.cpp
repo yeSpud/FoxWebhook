@@ -56,7 +56,6 @@ Blog::Blog(const char* json) { // TODO Comments
 					continue;
 				}
 
-				//Image image = Image("", width, height, avatarurl, false);
 				Content::Image image;
 				image.width = width;
 				image.height = height;

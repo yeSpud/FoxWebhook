@@ -64,28 +64,39 @@ Post::Post(const char* json) { // TODO Comments
 			if (contentEntry.HasMember("media")) {
 				for (const auto &mediaEntry : contentEntry["media"].GetArray()) {
 					if (mediaEntry.IsObject()) {
-						std::string media_key, url;
+						std::string media_key, media_type, url;
 						unsigned int width, height;
 
-						if (!Image::entryHasString(mediaEntry, "media_key", media_key)) {
+						if (!Content::entryHasString(mediaEntry, "media_key", media_key)) {
 							continue;
 						}
 
-						if (!Image::entryHasInt(mediaEntry, "width", width)) {
+						if (!Content::entryHasString(mediaEntry, "type", media_type)) {
 							continue;
 						}
 
-						if (!Image::entryHasInt(mediaEntry, "height", height)) {
+						if (!Content::entryHasInt(mediaEntry, "width", width)) {
 							continue;
 						}
 
-						if (!Image::entryHasString(mediaEntry, "url", url)) {
+						if (!Content::entryHasInt(mediaEntry, "height", height)) {
+							continue;
+						}
+
+						if (!Content::entryHasString(mediaEntry, "url", url)) {
 							continue;
 						}
 
 						bool has_original_dimensions = mediaEntry.HasMember("has_original_dimensions");
 
-						Image image = Image(media_key, width, height, url, has_original_dimensions);
+						//Image image = Image(media_key, width, height, url, has_original_dimensions);
+						Content::Image image;
+						image.media_key = media_key;
+						image.type = media_type;
+						image.width = width;
+						image.height = height;
+						image.url = url;
+						image.has_original_dimensions = has_original_dimensions;
 						content.push_back(image);
 					}
 				}
