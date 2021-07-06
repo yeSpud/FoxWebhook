@@ -1,6 +1,5 @@
 #include "src/FoxWebhook.hpp"
 #include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/spdlog.h>
 
 // Add sleep function based on OS
 #ifdef _WIN32
@@ -22,7 +21,7 @@ std::shared_ptr<spdlog::logger> logger;
 
 /**
  * TODO Documentation
- * @param foxWebhook
+ * @param f
  */
 void checkForNewPost(FoxWebhook &f) {
 
@@ -41,14 +40,6 @@ void checkForNewPost(FoxWebhook &f) {
 
 	// Generate the post from the json.
 	Post p = Post::generatePosts(postResponse.text.c_str())[0];
-	/*
-	try {
-		p = t.getMostRecentPost();
-	} catch (const std::exception &exception) {
-		logger->error(fmt::format("Exception getting most recent post: {}", exception.what()));
-		return;
-	}
-	*/
 
 	// Compare the posts.
 	logger->debug(fmt::format("Comparing post id {} to post id {}", p.getId_string(), f.previousPost.getId_string()));
@@ -71,8 +62,6 @@ void checkForNewPost(FoxWebhook &f) {
 
 		// Generate the blog from the blog json.
 		Blog b = Blog::generateBlog(blogResponse.text.c_str());
-
-		//Blog b = t.getBlogInfo();
 
 		// Send the embed.
 		f.getDiscordWebhook().sendEmbed(b.getTitle(), p.getPost_url(), b.getAvatars()[0].getUrl(),
@@ -107,8 +96,6 @@ int main() {
 	// Initialize each fox webhook's previous posts.
 	for (FoxWebhook &foxWebhook : foxWebhooks) {
 
-		// Post post = foxWebhook.getTumblrAPI().getMostRecentPost();
-
 		// Get the most recent post from the blog. Start by getting the json.
 		cpr::Response response = foxWebhook.getTumblrAPI().getPostsJson(1);
 
@@ -121,8 +108,6 @@ int main() {
 
 		// Get the post object since the status code was valid.
 		Post post = Post::generatePosts(response.text.c_str())[0];
-
-		//logger->info(fmt::format("Initializing with most recent post ID for {}: {}", post.getBlog_name(), post.getId_string()));
 
 		// Set the previous post for the webhook to the returned post.
 		foxWebhook.previousPost = std::move(post);

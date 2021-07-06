@@ -6,6 +6,7 @@
 #define FOXWEBHOOK_TUMBLRAPI_HPP
 
 #include <cpr/cpr.h>
+#include <spdlog/spdlog.h>
 #include "Blog.hpp"
 #include "Post.hpp"
 
@@ -26,9 +27,34 @@ private:
 	/**
 	 * TODO Documentation
 	 * @param endpoint
+	 * @param authRequired
+	 * @param optionalParams
 	 * @return
 	 */
-	cpr::Response sendRequest(const std::string &endpoint, bool authRequired, const std::string &optionalParameters);
+	cpr::Response sendRequest(const std::string &endpoint, bool authRequired, const std::string &optionalParams = "") {
+
+		// Get our logger.
+		std::shared_ptr<spdlog::logger> logger = spdlog::get("Logger");
+
+		// Format the URL to go to for retrieving data.
+		std::string url = "api.tumblr.com/v2/" + endpoint;
+		if (authRequired) {
+			url += "?api_key=" + token;
+		}
+		url += optionalParams;
+
+		// Get the response from the URL.
+		logger->debug(fmt::format("Querying url: {}", url));
+		cpr::Response response;
+		response = cpr::Get(cpr::Url{url});
+
+		// If check the response code.
+		if (response.status_code != 200) {
+			logger->warn(fmt::format("Status code {} - {}: {}", response.status_code, response.reason, response.text));
+		}
+
+		return response;
+	}
 
 public:
 
@@ -44,37 +70,21 @@ public:
 	 * @param number
 	 * @return
 	 */
-	//[[deprecated]]
-	//std::vector<Post> getPosts(unsigned int number);
-
-	/**
-	 * TODO Documentation
-	 * @param number
-	 * @return
-	 */
 	cpr::Response getPostsJson(const unsigned int number) {
-		return sendRequest("blog/" + blogURL + "/posts",
-		                   true, "&npf=true&limit=" + std::to_string(number));
+		return sendRequest("blog/" + blogURL + "/posts", true, "&npf=true&limit=" + std::to_string(number));
 	};
 
 	/**
 	 * TODO Documentation
 	 * @return
 	 */
-	//[[deprecated]]
-	//Blog getBlogInfo();
+	cpr::Response getBlogInfoJson() { return sendRequest("blog/" + blogURL + "/info", true); };
 
 	/**
 	 * TODO Documentation
 	 * @return
 	 */
-	cpr::Response getBlogInfoJson() { return sendRequest("blog/" + blogURL + "/info", true, ""); };
-
-	/**
-	 * TODO Documentation
-	 * @return
-	 */
-	cpr::Response getBlogAvatarJson() { return sendRequest("blog/" + blogURL + "/avatar", false, ""); };
+	cpr::Response getBlogAvatarJson() { return sendRequest("blog/" + blogURL + "/avatar", false); };
 
 };
 
