@@ -64,8 +64,7 @@ void checkForNewPost(FoxWebhook &f) {
 		Blog b = Blog::generateBlog(blogResponse.text.c_str());
 
 		// Send the embed.
-		f.getDiscordWebhook().sendEmbed(b.getTitle(), p.getPost_url(), b.getAvatars()[0].getUrl(),
-		                                p.getContent()[0].getUrl());
+		f.getDiscordWebhook().sendEmbed(b.getTitle(), p.getPost_url(), b.getAvatars()[0].url,p.getContent()[0].getUrl());
 
 		// And finally reset the previous post to the current post.
 		f.previousPost = std::move(p);

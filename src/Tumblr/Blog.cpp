@@ -44,19 +44,23 @@ Blog::Blog(const char* json) { // TODO Comments
 				std::string avatarurl;
 				unsigned int width, height;
 
-				if (!Image::entryHasString(avatarEntry, "url", avatarurl)) {
+				if (!Content::entryHasString(avatarEntry, "url", avatarurl)) {
 					continue;
 				}
 
-				if (!Image::entryHasInt(avatarEntry, "width", width)) {
+				if (!Content::entryHasInt(avatarEntry, "width", width)) {
 					continue;
 				}
 
-				if (!Image::entryHasInt(avatarEntry, "height", height)) {
+				if (!Content::entryHasInt(avatarEntry, "height", height)) {
 					continue;
 				}
 
-				Image image = Image("", width, height, avatarurl, false);
+				//Image image = Image("", width, height, avatarurl, false);
+				Content::Image image;
+				image.width = width;
+				image.height = height;
+				image.url = avatarurl;
 				avatar.push_back(image);
 			}
 		}

@@ -5,7 +5,7 @@
 #ifndef FOXWEBHOOK_BLOG_HPP
 #define FOXWEBHOOK_BLOG_HPP
 
-#include "Image.hpp"
+#include "Content.hpp"
 #include <vector>
 
 class Blog {
@@ -47,7 +47,7 @@ public:
 	 * TODO Documentation
 	 * @return
 	 */
-	std::vector<Image> getAvatars() { return avatar; };
+	std::vector<Content::Image> getAvatars() { return avatar; };
 
 	/**
 	 * TODO Documentation
@@ -164,7 +164,7 @@ private:
 	/**
 	 * TODO Documentation
 	 */
-	std::vector<Image> avatar;
+	std::vector<Content::Image> avatar;
 
 	/**
 	 * TODO Documentation
