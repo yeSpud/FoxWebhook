@@ -39,14 +39,14 @@ void checkForNewPost(FoxWebhook &f) {
 	}
 
 	// Generate the post from the json.
-	Post p = Post::generatePosts(postResponse.text.c_str())[0];
+	TumblrAPI::Post p = TumblrAPI::generatePosts(postResponse.text.c_str())[0];
 
 	// Compare the posts.
-	logger->debug(fmt::format("Comparing post id {} to post id {}", p.getId_string(), f.previousPost.getId_string()));
+	logger->debug(fmt::format("Comparing post id {} to post id {}", p.id_string, f.previousPost.id_string));
 	if (p != f.previousPost) {
 
 		// Log that a new post was found.
-		logger->info("New post found! " + p.getPost_url());
+		logger->info("New post found! " + p.post_url);
 
 		// Get the blog json from the tumblr api.
 		cpr::Response blogResponse = t.getBlogInfoJson();
@@ -64,11 +64,10 @@ void checkForNewPost(FoxWebhook &f) {
 		TumblrAPI::Blog b = TumblrAPI::generateBlog(blogResponse.text.c_str());
 
 		// Get the post image to send.
-		std::vector<Content::Image> content = p.getContent();
-		std::string image = content[0].url;
+		std::string image = p.content[0].url;
 
 		// Try overriding the image if a better one is found.
-		for (const Content::Image& newImage : content) {
+		for (const Content::Image& newImage : p.content) {
 			if (newImage.has_original_dimensions) {
 				image = newImage.url;
 				break;
@@ -76,7 +75,7 @@ void checkForNewPost(FoxWebhook &f) {
 		}
 
 		// Send the embed.
-		f.getDiscordWebhook().sendEmbed(b.title, p.getPost_url(), b.avatar[0].url, image);
+		f.getDiscordWebhook().sendEmbed(b.title, p.post_url, b.avatar[0].url, image);
 
 		// And finally reset the previous post to the current post.
 		f.previousPost = std::move(p);
@@ -110,8 +109,6 @@ int main() {
 		// Get the most recent post from the blog. Start by getting the json.
 		cpr::Response response = foxWebhook.getTumblrAPI().getPostsJson(1);
 
-		TumblrAPI::Blog blog = TumblrAPI::generateBlog(foxWebhook.getTumblrAPI().getBlogInfoJson().text.c_str());
-
 		// Check the response ode for the post. If it isn't 200 be sure to log as an error and return now.
 		if (response.status_code != 200) {
 
@@ -120,7 +117,7 @@ int main() {
 		}
 
 		// Get the post object since the status code was valid.
-		Post post = Post::generatePosts(response.text.c_str())[0];
+		TumblrAPI::Post post = TumblrAPI::generatePosts(response.text.c_str())[0];
 
 		// Set the previous post for the webhook to the returned post.
 		foxWebhook.previousPost = std::move(post);

@@ -37,7 +37,7 @@ public:
 	/**
 	 * TODO Documentation
 	 */
-	Post previousPost = Post();
+	TumblrAPI::Post previousPost;
 
 	/**
 	 * TODO Documentation

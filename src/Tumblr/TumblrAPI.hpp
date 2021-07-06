@@ -7,7 +7,7 @@
 
 #include <cpr/cpr.h>
 #include <spdlog/spdlog.h>
-#include "Post.hpp"
+#include "Content.hpp"
 
 class TumblrAPI {
 
@@ -61,7 +61,7 @@ private:
 	 * @param value
 	 * @return
 	 */
-	static bool getBool(rapidjson::Value &entry, const char* value) {
+	static bool getBool(auto &entry, const char* value) {
 		if (entry.HasMember(value)) {
 			return entry[value].GetBool();
 		} else {
@@ -75,7 +75,7 @@ private:
 	 * @param value
 	 * @return
 	 */
-	static std::string getString(rapidjson::Value &entry, const char* value) {
+	static std::string getString(auto &entry, const char* value) {
 		if (entry.HasMember(value)) {
 			return entry[value].GetString();
 		} else {
@@ -89,7 +89,7 @@ private:
 	 * @param value
 	 * @return
 	 */
-	static uint64_t getNumber(rapidjson::Value &entry, const char* value) {
+	static uint64_t getNumber(auto &entry, const char* value) {
 		if (entry.HasMember(value)) {
 			return entry[value].GetUint64();
 		} else {
@@ -200,12 +200,143 @@ public:
 
 	};
 
+	struct Post {
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string type;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string original_type;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string blog_name;
+
+		// const auto blog;
+
+		/**
+		 * TODO Documentation
+		 */
+		uint64_t id = 0;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string id_string;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string post_url;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string slug;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string date;
+
+		/**
+		 * TODO Documentation
+		 */
+		uint64_t timestamp = 0;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string state;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string reblog_key;
+
+		// const auto tags;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string short_url;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string summary;
+
+		/**
+		 * TODO Documentation
+		 */
+		bool should_open_in_legacy;
+
+		/**
+		 * TODO Documentation
+		 */
+		uint64_t note_count = 0;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::vector<Content::Image> content;
+
+		// const auto layout;
+
+		// const auto trail;
+
+		/**
+		 * TODO Documentation
+		 */
+		bool can_like;
+
+		/**
+		 * TODO Documentation
+		 */
+		bool can_reblog;
+
+		/**
+		 * TODO Documentation
+		 */
+		bool can_send_in_message;
+
+		/**
+		 * TODO Documentation
+		 */
+		bool can_reply;
+
+		/**
+		 * TODO Documentation
+		 */
+		bool display_avatar;
+
+
+		/**
+		 * TODO Documentaiton
+		 * @param p
+		 * @return
+		 */
+		bool operator!=(const Post &p) const {
+			bool idCheck = id == p.id;
+			bool idStringCheck = id_string == p.id_string;
+			bool urlCheck = post_url == p.post_url;
+			return !idCheck && !idStringCheck && !urlCheck;
+		}
+	};
+
 	/**
 	 * TODO Documentation
 	 * @param json
 	 * @return
 	 */
 	static Blog generateBlog(const char* json);
+
+	static std::vector<Post> generatePosts(const char* json);
 
 	/**
 	 * TODO Documentation

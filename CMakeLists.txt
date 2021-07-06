@@ -24,7 +24,7 @@ FetchContent_MakeAvailable(cpr)
 add_subdirectory(vendor/spdlog)
 find_package(spdlog)
 
-#add_executable(FoxWebhook main.cpp src/Tumblr/Post.cpp src/Tumblr/Post.hpp src/Tumblr/TumblrAPI.hpp src/DiscordWebhook.hpp src/DiscordWebhook.cpp src/FoxWebhook.cpp src/FoxWebhook.hpp)
+#add_executable(FoxWebhook main.cpp src/Tumblr/TumblrAPI.hpp src/DiscordWebhook.hpp src/DiscordWebhook.cpp src/FoxWebhook.cpp src/FoxWebhook.hpp)
 FILE(GLOB MyCPPSources src/*.cpp src/Tumblr/*.cpp)
 FILE(GLOB MyHPPSources src/*.hpp src/Tumblr/*.hpp)
 add_executable(FoxWebhook main.cpp ${MyCPPSources} ${MyHPPSources})

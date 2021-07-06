@@ -14,6 +14,10 @@ class Content {
 
 public:
 
+	struct Theme {
+		// TODO Used by blog info
+	};
+
 	struct Text {
 		// TODO
 	};
