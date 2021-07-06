@@ -3,8 +3,6 @@
 //
 
 #include "TumblrAPI.hpp"
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
 #include <spdlog/spdlog.h>
 
 cpr::Response
@@ -23,7 +21,7 @@ TumblrAPI::sendRequest(const std::string &endpoint, bool authRequired, const std
 	// Get the response from the URL.
 	logger->debug(fmt::format("Querying url: {}", url));
 	cpr::Response response;
-	response = cpr::Get(cpr::Url{url}); // FIXME Sometimes returns 0
+	response = cpr::Get(cpr::Url{url});
 
 	// If check the response code.
 	if (response.status_code != 200) {
@@ -33,7 +31,8 @@ TumblrAPI::sendRequest(const std::string &endpoint, bool authRequired, const std
 	return response;
 }
 
-std::vector<Post> TumblrAPI::getPosts(unsigned int number) { // TODO Comments
+/*
+std::vector<Post> TumblrAPI::getPosts(unsigned int number) {
 
 	std::vector<Post> posts;
 	rapidjson::Document document;
@@ -68,7 +67,7 @@ std::vector<Post> TumblrAPI::getPosts(unsigned int number) { // TODO Comments
 	return posts;
 }
 
-Blog TumblrAPI::getBlogInfo() { // TODO Comments
+Blog TumblrAPI::getBlogInfo() {
 	rapidjson::Document document;
 	Blog blog;
 
@@ -91,3 +90,4 @@ Blog TumblrAPI::getBlogInfo() { // TODO Comments
 
 	return blog;
 }
+*/

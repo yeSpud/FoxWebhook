@@ -3,7 +3,6 @@
 //
 
 #include "FoxWebhook.hpp"
-#include "ErrorCodes.hpp"
 #include <spdlog/spdlog.h>
 
 bool FoxWebhook::readFromFile(const std::string &filePath, std::string &json) {

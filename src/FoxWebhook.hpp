@@ -7,6 +7,7 @@
 
 #include "Tumblr/TumblrAPI.hpp"
 #include "DiscordWebhook.hpp"
+#include "ErrorCodes.hpp"
 
 class FoxWebhook {
 

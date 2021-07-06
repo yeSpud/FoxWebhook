@@ -4,11 +4,41 @@
 
 #include "Post.hpp"
 
-Post::Post(const std::string &postJson) { // TODO Comments
+std::vector<Post> Post::generatePosts(const char *json) { // TODO Comments
+
+	std::vector<Post> posts;
+	rapidjson::Document document;
+
+	document.Parse(json);
+
+	// Get the response section of the request (if it has it).
+	if (document.HasMember("response")) {
+		auto response = document["response"].GetObj();
+
+		// Gets the posts array from the response.
+		if (response.HasMember("posts")) {
+
+			for (const auto &entry : response["posts"].GetArray()) {
+				if (entry.IsObject()) {
+					rapidjson::StringBuffer buffer;
+					rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+					entry.Accept(writer);
+					Post post = Post(buffer.GetString());
+					posts.push_back(post);
+				}
+			}
+		}
+	}
+
+	return posts;
+
+}
+
+Post::Post(const char* json) { // TODO Comments
 
 	// Ingest the string as a json DOM
 	rapidjson::Document document;
-	document.Parse(postJson.c_str());
+	document.Parse(json);
 
 	type = getString(document, "type", "blocks");
 	original_type = getString(document, "original_type", "regular");

@@ -44,25 +44,37 @@ public:
 	 * @param number
 	 * @return
 	 */
-	std::vector<Post> getPosts(unsigned int number);
+	//[[deprecated]]
+	//std::vector<Post> getPosts(unsigned int number);
+
+	/**
+	 * TODO Documentation
+	 * @param number
+	 * @return
+	 */
+	cpr::Response getPostsJson(const unsigned int number) {
+		return sendRequest("blog/" + blogURL + "/posts",
+		                   true, "&npf=true&limit=" + std::to_string(number));
+	};
 
 	/**
 	 * TODO Documentation
 	 * @return
 	 */
-	Post getMostRecentPost() { return getPosts(1)[0]; };
+	//[[deprecated]]
+	//Blog getBlogInfo();
 
 	/**
 	 * TODO Documentation
 	 * @return
 	 */
-	Blog getBlogInfo();
+	cpr::Response getBlogInfoJson() { return sendRequest("blog/" + blogURL + "/info", true, ""); };
 
 	/**
 	 * TODO Documentation
 	 * @return
 	 */
-	cpr::Response getBlogAvatar() { return sendRequest("blog/" + blogURL + "/avatar", false, ""); };
+	cpr::Response getBlogAvatarJson() { return sendRequest("blog/" + blogURL + "/avatar", false, ""); };
 
 };
 

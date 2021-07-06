@@ -16,34 +16,69 @@
 #endif
 
 /**
- * TODO Documentation
+ * Pointer for the logger of the script.
  */
 std::shared_ptr<spdlog::logger> logger;
 
 /**
- * TODO Documentation & comments
+ * TODO Documentation
  * @param foxWebhook
  */
 void checkForNewPost(FoxWebhook &f) {
 
 	TumblrAPI t = f.getTumblrAPI();
 
-	Post p;
+	// Get the most recent post from the tumblr blog as json.
+	cpr::Response postResponse = t.getPostsJson(1);
+
+	// Check to see if the response was successful (will return with 200).
+	if (postResponse.status_code != 200) {
+
+		// Log that there was an issue retrieving the post and return early.
+		logger->warn("Unable to retrieve most recent post during loop");
+		return;
+	}
+
+	// Generate the post from the json.
+	Post p = Post::generatePosts(postResponse.text.c_str())[0];
+	/*
 	try {
 		p = t.getMostRecentPost();
 	} catch (const std::exception &exception) {
 		logger->error(fmt::format("Exception getting most recent post: {}", exception.what()));
 		return;
 	}
+	*/
 
+	// Compare the posts.
 	logger->debug(fmt::format("Comparing post id {} to post id {}", p.getId_string(), f.previousPost.getId_string()));
 	if (p != f.previousPost) {
-		logger->info("New post found! " + p.getPost_url());
-		Blog b = t.getBlogInfo();
 
+		// Log that a new post was found.
+		logger->info("New post found! " + p.getPost_url());
+
+		// Get the blog json from the tumblr api.
+		cpr::Response blogResponse = t.getBlogInfoJson();
+
+		// Verify that the response for retrieving the blog json was successful (will return with 200).
+		if (blogResponse.status_code != 200) {
+
+			// Log that we could not get the blog info and return early.
+			// DO NOT SET THE PREVIOUS POST (that way this will be rerun).
+			logger->warn("Unable to retrieve blog info during loop");
+			return;
+		}
+
+		// Generate the blog from the blog json.
+		Blog b = Blog::generateBlog(blogResponse.text.c_str());
+
+		//Blog b = t.getBlogInfo();
+
+		// Send the embed.
 		f.getDiscordWebhook().sendEmbed(b.getTitle(), p.getPost_url(), b.getAvatars()[0].getUrl(),
 		                                p.getContent()[0].getUrl());
 
+		// And finally reset the previous post to the current post.
 		f.previousPost = std::move(p);
 
 	}
@@ -71,10 +106,25 @@ int main() {
 
 	// Initialize each fox webhook's previous posts.
 	for (FoxWebhook &foxWebhook : foxWebhooks) {
-		Post post = foxWebhook.getTumblrAPI().getMostRecentPost();
-		logger->info(fmt::format("Initializing with most recent post ID for {}: {}", post.getBlog_name(),
-		                         post.getId_string()));
 
+		// Post post = foxWebhook.getTumblrAPI().getMostRecentPost();
+
+		// Get the most recent post from the blog. Start by getting the json.
+		cpr::Response response = foxWebhook.getTumblrAPI().getPostsJson(1);
+
+		// Check the response ode for the post. If it isn't 200 be sure to log as an error and return now.
+		if (response.status_code != 200) {
+
+			logger->error("Unable to get initial post for blog!");
+			return ErrorCodes::CANNOT_GET_INITIAL_POST;
+		}
+
+		// Get the post object since the status code was valid.
+		Post post = Post::generatePosts(response.text.c_str())[0];
+
+		//logger->info(fmt::format("Initializing with most recent post ID for {}: {}", post.getBlog_name(), post.getId_string()));
+
+		// Set the previous post for the webhook to the returned post.
 		foxWebhook.previousPost = std::move(post);
 	}
 

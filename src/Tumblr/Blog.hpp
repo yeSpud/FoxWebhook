@@ -17,11 +17,7 @@ public:
 	 */
 	Blog() = default;;
 
-	/**
-	 * TODO Documentation
-	 * @param blogJson
-	 */
-	explicit Blog(const std::string &blogJson);
+	static Blog generateBlog(const char* json);
 
 	/**
 	 * TODO Documentation
@@ -138,6 +134,12 @@ public:
 	[[nodiscard]] bool getIs_optout_ads() const { return is_optout_ads; };
 
 private:
+
+	/**
+	 * TODO Documentation
+	 * @param json
+	 */
+	explicit Blog(const char* json);
 
 	/**
 	 * TODO Documentation

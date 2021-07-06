@@ -5,10 +5,32 @@
 #include "Blog.hpp"
 #include "Post.hpp"
 
-Blog::Blog(const std::string &blogJson) { // TODO Comments
+Blog Blog::generateBlog(const char *json) { // TODO Comments
+
+	Blog blog;
+	rapidjson::Document document;
+
+	document.Parse(json);
+
+	if (document.HasMember("response")) {
+		auto response = document["response"].GetObj();
+
+		if (response.HasMember("blog")) {
+			rapidjson::StringBuffer buffer;
+			rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+			response["blog"].Accept(writer);
+			blog = Blog(buffer.GetString());
+		}
+	}
+
+	return blog;
+
+}
+
+Blog::Blog(const char* json) { // TODO Comments
 
 	rapidjson::Document document;
-	document.Parse(blogJson.c_str());
+	document.Parse(json);
 
 	ask = Post::getBool(document, "ask");
 	ask_anon = Post::getBool(document, "ask_anon");

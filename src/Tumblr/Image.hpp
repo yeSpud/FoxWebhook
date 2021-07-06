@@ -21,6 +21,7 @@ public:
 	 * @param url
 	 * @param has_original_dimensions
 	 */
+	[[deprecated("Move to struct since there is essentially no logic")]]
 	Image(std::string media_key, unsigned int width, unsigned int height, std::string url,
 	      bool has_original_dimensions) : media_key(std::move(media_key)), type("image"), width(width),
 	                                      height(height), url(std::move(url)),

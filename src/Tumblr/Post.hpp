@@ -6,6 +6,8 @@
 #define FOXWEBHOOK_POST_HPP
 
 #include "Image.hpp"
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 #include <vector>
 
 class Post {
@@ -21,9 +23,10 @@ public:
 
 	/**
 	 * TODO Documentation
-	 * @param postJson
+	 * @param json
+	 * @return
 	 */
-	explicit Post(const std::string &postJson);
+	static std::vector<Post> generatePosts(const char* json);
 
 	/**
 	 * TODO Documentation
@@ -184,6 +187,12 @@ public:
 	bool operator!=(const Post &p);
 
 private:
+
+	/**
+	 * TODO Documentation
+	 * @param postJson
+	 */
+	explicit Post(const char* json);
 
 	/**
 	 * TODO Documentation
