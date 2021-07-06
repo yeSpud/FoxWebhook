@@ -20,11 +20,34 @@ public:
 
 	struct Image {
 
+		/**
+		 * TODO Documentation
+		 */
 		std::string type;
+
+		/**
+		 * TODO Documentation
+		 */
 		std::string media_key;
+
+		/**
+		 * TODO Documentation
+		 */
 		unsigned int width;
+
+		/**
+		 * TODO Documentaiton
+		 */
 		unsigned int height;
+
+		/**
+		 * TODO Documentation
+		 */
 		std::string url;
+
+		/**
+		 * TODO Documentation
+		 */
 		bool has_original_dimensions = false;
 
 	};

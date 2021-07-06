@@ -7,7 +7,6 @@
 
 #include <cpr/cpr.h>
 #include <spdlog/spdlog.h>
-#include "Blog.hpp"
 #include "Post.hpp"
 
 class TumblrAPI {
@@ -56,7 +55,157 @@ private:
 		return response;
 	}
 
+	/**
+	 * TODO Documentation & comments
+	 * @param entry
+	 * @param value
+	 * @return
+	 */
+	static bool getBool(rapidjson::Value &entry, const char* value) {
+		if (entry.HasMember(value)) {
+			return entry[value].GetBool();
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * TODO Documentation
+	 * @param entry
+	 * @param value
+	 * @return
+	 */
+	static std::string getString(rapidjson::Value &entry, const char* value) {
+		if (entry.HasMember(value)) {
+			return entry[value].GetString();
+		} else {
+			return "";
+		}
+	}
+
+	/**
+	 * TODO Documentation
+	 * @param entry
+	 * @param value
+	 * @return
+	 */
+	static uint64_t getNumber(rapidjson::Value &entry, const char* value) {
+		if (entry.HasMember(value)) {
+			return entry[value].GetUint64();
+		} else {
+			return 0;
+		}
+	}
+
 public:
+
+	struct Blog {
+
+		/**
+		 * TODO Documentation
+		 */
+		bool ask;
+
+		/**
+		 * TODO Documentation
+		 */
+		bool ask_anon;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string ask_page_title;
+
+		/**
+		 * TODO Documentation
+		 */
+		bool asks_allow_media;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::vector<Content::Image> avatar;
+
+		/**
+		 * TODO Documentation
+		 */
+		bool can_chat;
+
+		/**
+		 * TODO Documentation
+		 */
+		bool can_subscribe;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string description;
+
+		/**
+		 * TODO Documentation
+		 */
+		bool is_nsfw;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string name;
+
+		/**
+		 * TODO Documentation
+		 */
+		uint64_t posts;
+
+		/**
+		 * TODO Documentation
+		 */
+		bool shared_likes;
+
+		/**
+		 * TODO Documentation
+		 */
+		bool subscribed;
+
+		// auto theme
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string title;
+
+		/**
+		 * TODO Documentation
+		 */
+		uint64_t total_posts;
+
+		/**
+		 * TODO Documentation
+		 */
+		uint64_t updated;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string url;
+
+		/**
+		 * TODO Documentation
+		 */
+		std::string uuid;
+
+		/**
+		 * TODO Documentation
+		 */
+		bool is_optout_ads;
+
+	};
+
+	/**
+	 * TODO Documentation
+	 * @param json
+	 * @return
+	 */
+	static Blog generateBlog(const char* json);
 
 	/**
 	 * TODO Documentation

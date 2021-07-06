@@ -61,7 +61,7 @@ void checkForNewPost(FoxWebhook &f) {
 		}
 
 		// Generate the blog from the blog json.
-		Blog b = Blog::generateBlog(blogResponse.text.c_str());
+		TumblrAPI::Blog b = TumblrAPI::generateBlog(blogResponse.text.c_str());
 
 		// Get the post image to send.
 		std::vector<Content::Image> content = p.getContent();
@@ -76,7 +76,7 @@ void checkForNewPost(FoxWebhook &f) {
 		}
 
 		// Send the embed.
-		f.getDiscordWebhook().sendEmbed(b.getTitle(), p.getPost_url(), b.getAvatars()[0].url, image);
+		f.getDiscordWebhook().sendEmbed(b.title, p.getPost_url(), b.avatar[0].url, image);
 
 		// And finally reset the previous post to the current post.
 		f.previousPost = std::move(p);
@@ -109,6 +109,8 @@ int main() {
 
 		// Get the most recent post from the blog. Start by getting the json.
 		cpr::Response response = foxWebhook.getTumblrAPI().getPostsJson(1);
+
+		TumblrAPI::Blog blog = TumblrAPI::generateBlog(foxWebhook.getTumblrAPI().getBlogInfoJson().text.c_str());
 
 		// Check the response ode for the post. If it isn't 200 be sure to log as an error and return now.
 		if (response.status_code != 200) {
