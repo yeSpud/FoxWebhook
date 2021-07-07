@@ -30,30 +30,7 @@ private:
 	 * @param optionalParams
 	 * @return
 	 */
-	cpr::Response sendRequest(const std::string &endpoint, bool authRequired, const std::string &optionalParams = "") {
-
-		// Get our logger.
-		std::shared_ptr<spdlog::logger> logger = spdlog::get("Logger");
-
-		// Format the URL to go to for retrieving data.
-		std::string url = "api.tumblr.com/v2/" + endpoint;
-		if (authRequired) {
-			url += "?api_key=" + token;
-		}
-		url += optionalParams;
-
-		// Get the response from the URL.
-		logger->debug(fmt::format("Querying url: {}", url));
-		cpr::Response response;
-		response = cpr::Get(cpr::Url{url});
-
-		// If check the response code.
-		if (response.status_code != 200) {
-			logger->warn(fmt::format("Status code {} - {}: {}", response.status_code, response.reason, response.text));
-		}
-
-		return response;
-	}
+	cpr::Response sendRequest(const std::string &endpoint, bool authRequired, const std::string &optionalParams = "");
 
 	/**
 	 * TODO Documentation & comments
@@ -61,7 +38,7 @@ private:
 	 * @param value
 	 * @return
 	 */
-	static bool getBool(auto &entry, const char* value) {
+	static bool getBool(auto &entry, const char *value) {
 		if (entry.HasMember(value)) {
 			return entry[value].GetBool();
 		} else {
@@ -75,7 +52,7 @@ private:
 	 * @param value
 	 * @return
 	 */
-	static std::string getString(auto &entry, const char* value) {
+	static std::string getString(auto &entry, const char *value) {
 		if (entry.HasMember(value)) {
 			return entry[value].GetString();
 		} else {
@@ -89,7 +66,7 @@ private:
 	 * @param value
 	 * @return
 	 */
-	static uint64_t getNumber(auto &entry, const char* value) {
+	static uint64_t getNumber(auto &entry, const char *value) {
 		if (entry.HasMember(value)) {
 			return entry[value].GetUint64();
 		} else {
@@ -317,7 +294,7 @@ public:
 
 
 		/**
-		 * TODO Documentaiton
+		 * TODO Documentation
 		 * @param p
 		 * @return
 		 */
@@ -327,6 +304,18 @@ public:
 			bool urlCheck = post_url == p.post_url;
 			return !idCheck && !idStringCheck && !urlCheck;
 		}
+
+		/**
+		 * TODO Documentation
+		 * @param p
+		 * @return
+		 */
+		bool operator==(const Post &p) const {
+			bool idCheck = id == p.id;
+			bool idStringCheck = id_string == p.id_string;
+			bool urlCheck = post_url == p.post_url;
+			return idCheck && idStringCheck && urlCheck;
+		}
 	};
 
 	/**
@@ -334,9 +323,9 @@ public:
 	 * @param json
 	 * @return
 	 */
-	static Blog generateBlog(const char* json);
+	static Blog generateBlog(const char *json);
 
-	static std::vector<Post> generatePosts(const char* json);
+	static std::vector<Post> generatePosts(const char *json);
 
 	/**
 	 * TODO Documentation

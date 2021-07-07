@@ -17,18 +17,18 @@
 /**
  * Pointer for the logger of the script.
  */
-std::shared_ptr<spdlog::logger> logger;
+std::shared_ptr <spdlog::logger> logger;
 
 /**
  * TODO Documentation
- * @param f
+ * @param foxWebhook
  */
-void checkForNewPost(FoxWebhook &f) {
+void checkForNewPost(FoxWebhook &foxWebhook) {
 
-	TumblrAPI t = f.getTumblrAPI();
+	TumblrAPI tumblrAPI = foxWebhook.getTumblrAPI();
 
 	// Get the most recent post from the tumblr blog as json.
-	cpr::Response postResponse = t.getPostsJson(1);
+	cpr::Response postResponse = tumblrAPI.getPostsJson(1);
 
 	// Check to see if the response was successful (will return with 200).
 	if (postResponse.status_code != 200) {
@@ -39,61 +39,69 @@ void checkForNewPost(FoxWebhook &f) {
 	}
 
 	// Generate the post from the json.
-	TumblrAPI::Post p = TumblrAPI::generatePosts(postResponse.text.c_str())[0];
+	TumblrAPI::Post post = TumblrAPI::generatePosts(postResponse.text.c_str())[0];
 
 	// Compare the posts.
-	logger->debug(fmt::format("Comparing post id {} to post id {}", p.id_string, f.previousPost.id_string));
-	if (p != f.previousPost) {
+	logger->debug(fmt::format("Comparing post id {} to post id {}", post.id_string, foxWebhook.previousPost.id_string));
+	if (post == foxWebhook.previousPost) {
 
-		// Log that a new post was found.
-		logger->info("New post found! " + p.post_url);
-
-		// Get the blog json from the tumblr api.
-		cpr::Response blogResponse = t.getBlogInfoJson();
-
-		// Verify that the response for retrieving the blog json was successful (will return with 200).
-		if (blogResponse.status_code != 200) {
-
-			// Log that we could not get the blog info and return early.
-			// DO NOT SET THE PREVIOUS POST (that way this will be rerun).
-			logger->warn("Unable to retrieve blog info during loop");
-			return;
-		}
-
-		// Generate the blog from the blog json.
-		TumblrAPI::Blog b = TumblrAPI::generateBlog(blogResponse.text.c_str());
-
-		// Get the post image to send.
-		std::string image = p.content[0].url;
-
-		// Try overriding the image if a better one is found.
-		for (const Content::Image& newImage : p.content) {
-			if (newImage.has_original_dimensions) {
-				image = newImage.url;
-				break;
-			}
-		}
-
-		// Send the embed.
-		f.getDiscordWebhook().sendEmbed(b.title, p.post_url, b.avatar[0].url, image);
-
-		// And finally reset the previous post to the current post.
-		f.previousPost = std::move(p);
+		// Return early if there are no new posts.
+		logger->debug("No new post found");
+		return;
 
 	}
+
+	// Log that a new post was found.
+	logger->info("New post found! " + post.post_url);
+
+	// Get the blog json from the tumblr api.
+	cpr::Response blogResponse = tumblrAPI.getBlogInfoJson();
+
+	// Verify that the response for retrieving the blog json was successful (will return with 200).
+	if (blogResponse.status_code != 200) {
+
+		// Log that we could not get the blog info and return early.
+		// DO NOT SET THE PREVIOUS POST (that way this will be rerun).
+		logger->warn("Unable to retrieve blog info during loop");
+		return;
+	}
+
+	// Generate the blog from the blog json.
+	TumblrAPI::Blog blog = TumblrAPI::generateBlog(blogResponse.text.c_str());
+
+	// Get the post image to send.
+	std::string image = post.content[0].url;
+
+	// Try overriding the image if a better one is found.
+	for (const Content::Image &newImage : post.content) {
+		if (newImage.has_original_dimensions) {
+			image = newImage.url;
+			break;
+		}
+	}
+
+	// Send the embed.
+	logger->debug("Sending post to discord channel");
+	foxWebhook.getDiscordWebhook().sendEmbed(blog.title, post.post_url, blog.avatar[0].url, image);
+
+	// And finally reset the previous post to the current post.
+	logger->debug(fmt::format("Setting previous post to {}", post.id_string));
+	foxWebhook.previousPost = std::move(post);
+
+	logger->info("Returning to main function");
 }
 
 int main() {
 
 	// Setup the logger.
 	logger = spdlog::basic_logger_st("Logger", "log.txt");
-	logger->flush_on(spdlog::level::info);
+	logger->flush_on(spdlog::level::debug);
 	spdlog::set_default_logger(logger);
-	spdlog::flush_on(spdlog::level::info);
+	spdlog::flush_on(spdlog::level::debug);
 	logger->info("Starting up script...");
 
 	// Load the FoxWebhooks from the config file.
-	std::vector<FoxWebhook> foxWebhooks;
+	std::vector <FoxWebhook> foxWebhooks;
 	int status = FoxWebhook::loadFromConfig(foxWebhooks);
 
 	// If the status from the config was not 0, return the status.

@@ -71,7 +71,6 @@ TumblrAPI::Blog TumblrAPI::generateBlog(const char *json) { // TODO Comments
 	}
 
 	return blog;
-
 }
 
 std::vector<TumblrAPI::Post> TumblrAPI::generatePosts(const char *json) { // TODO Comments
@@ -170,5 +169,30 @@ std::vector<TumblrAPI::Post> TumblrAPI::generatePosts(const char *json) { // TOD
 	}
 
 	return posts;
+}
 
+cpr::Response
+TumblrAPI::sendRequest(const std::string &endpoint, bool authRequired, const std::string &optionalParams) {
+
+	// Get our logger.
+	std::shared_ptr<spdlog::logger> logger = spdlog::get("Logger");
+
+	// Format the URL to go to for retrieving data.
+	std::string url = "api.tumblr.com/v2/" + endpoint;
+	if (authRequired) {
+		url += "?api_key=" + token;
+	}
+	url += optionalParams;
+
+	// Get the response from the URL.
+	logger->debug(fmt::format("Querying url: {}", url));
+	cpr::Response response;
+	response = cpr::Get(cpr::Url{url});
+
+	// If check the response code.
+	if (response.status_code != 200) {
+		logger->warn(fmt::format("Status code {} - {}: {}", response.status_code, response.reason, response.text));
+	}
+
+	return response;
 }
