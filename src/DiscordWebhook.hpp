@@ -6,10 +6,11 @@
 #define FOXWEBHOOK_DISCORDWEBHOOK_HPP
 
 #include <cpr/cpr.h>
-#include <rapidjson/document.h>
-#include <utility>
+#include "rapidjson/document.h"
 
-
+/**
+ * TODO Documentation
+ */
 class DiscordWebhook {
 
 private:
