@@ -3,8 +3,7 @@
 //
 
 #include "FoxWebhook.hpp"
-//#include "rapidjson/document.h"
-#include "../cmake-build-debug/_deps/tumblrapi-build/vendor/rapidjson/src/rapidjson/include/rapidjson/document.h"
+#include "rapidjson/document.h"
 
 int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webhooks) {
 
@@ -31,13 +30,7 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 	}
 
 	// Try to get the json array of webhook information.
-	JSON_ARRAY entries = document["Webhooks"];
-
-	// Make the entries is a json array.
-	if (!entries.IsArray()) {
-		logger->warn("'Webhooks' is not an array");
-		return ErrorCodes::WEBHOOK_NOT_ARRAY;
-	}
+	JSON_ARRAY entries = document["Webhooks"].GetArray();
 
 	// Iterate though each entry in the webhooks json array.
 	for (rapidjson::SizeType i = 0; i < entries.Size(); i++) {
@@ -49,13 +42,13 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 		}
 
 		// Get the current entry object.
-		auto entry = entries[i].GetObj();
+		JSON_OBJECT entry = entries[i].GetObj();
 
 		// Try parsing the 3 main variables that we care about (webhook, blog, auth).
 		std::string webhook, blog, auth;
-		blog = parseEntry(entry, "BlogURL");
-		auth = parseEntry(entry, "Auth");
-		webhook = parseEntry(entry, "WebhookURL");
+		blog = entry["BlogURL"].GetString();
+		auth = entry["Auth"].GetString();
+		webhook = entry["WebhookURL"].GetString();
 
 		// Create a new TumblrAPI object from the blog and auth variables.
 		if (auth.empty() || blog.empty()) {

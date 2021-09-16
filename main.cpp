@@ -75,11 +75,13 @@ void checkForNewPost(FoxWebhook &foxWebhook) {
 	// Get the post image to send.
 	auto* image = dynamic_cast<Image *>(post.content[0]);
 
+	Media imageToUse = image->media[0];
+
 	// Try overriding the image if a better one is found.
 	// FIXME
-	for (const auto* newImage : dynamic_cast<Image *>(post.content)) {
-		if (newImage->has_original_dimensions) {
-			image = newImage.url;
+	for (const Media& newImage : image->media) {
+		if (newImage.has_original_dimensions) {
+			imageToUse = newImage;
 			break;
 		}
 	}
@@ -90,7 +92,7 @@ void checkForNewPost(FoxWebhook &foxWebhook) {
 
 	// Send the embed.
 	logger->debug("Sending post to discord channel");
-	foxWebhook.discordWebhook.sendEmbed(blog.title, post.post_url, blog.avatar[0]->media[0].url, image->media[0].url);
+	foxWebhook.discordWebhook.sendEmbed(blog.title, post.post_url, blog.avatar[0]->media[0].url, imageToUse.url);
 
 	// And finally reset the previous post to the current post.
 	logger->debug(fmt::format("Setting previous post to {}", post.id_string));

@@ -8,7 +8,7 @@
 #include <fstream>
 #include "DiscordWebhook.hpp"
 #include "ErrorCodes.hpp"
-#include "TumblrAPI.h"
+#include "TumblrAPI.hpp"
 #include "post.hpp"
 #include "spdlog/spdlog.h"
 
@@ -38,12 +38,12 @@ public:
 	/**
 	 * TODO Documentation
 	 */
-	const TumblrAPI tumblrApi;
+	TumblrAPI tumblrApi;
 
 	/**
 	 * TODO Documentation
 	 */
-	const DiscordWebhook discordWebhook;
+	DiscordWebhook discordWebhook;
 
 	/**
 	 * TODO Documentation
