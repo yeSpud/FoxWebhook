@@ -7,6 +7,7 @@
 
 #include "Tumblr/TumblrAPI.hpp"
 #include "DiscordWebhook.hpp"
+#include "ErrorCodes.hpp"
 
 class FoxWebhook {
 
@@ -36,7 +37,7 @@ public:
 	/**
 	 * TODO Documentation
 	 */
-	Post previousPost = Post();
+	TumblrAPI::Post previousPost;
 
 	/**
 	 * TODO Documentation

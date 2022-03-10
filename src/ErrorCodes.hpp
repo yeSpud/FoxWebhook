@@ -16,6 +16,8 @@ public:
 
 	const static int WEBHOOK_NOT_ARRAY = -4;
 
+	const static int CANNOT_GET_INITIAL_POST = -5;
+
 };
 
 
