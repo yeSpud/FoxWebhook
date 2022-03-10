@@ -1,6 +1,7 @@
-#include "spdlog/sinks/basic_file_sink.h"
+#include <spdlog/sinks/basic_file_sink.h>
 #include "src/FoxWebhook.hpp"
-#include "cpr/cpr.h"
+#include <npf/content/image.hpp>
+#include <cpr/cpr.h>
 
 // Add sleep function based on OS
 #ifdef _WIN32
@@ -12,7 +13,6 @@
 #else
 
 #include <unistd.h> // UNIX sleep
-#include <spdlog/sinks/basic_file_sink.h>
 
 #endif
 
@@ -39,11 +39,11 @@ void checkForNewPost(FoxWebhook &foxWebhook) {
 	}
 
 	// Generate the post from the json.
-	Post post = Post::generatePosts(postResponse.text.c_str())[0];
+	Post* post = Post::generatePosts(postResponse.text.c_str())[0].get();
 
 	// Compare the posts.
-	logger->debug(fmt::format("Comparing post id {} to post id {}", post.id_string, foxWebhook.previousPost.id_string));
-	if (post.id_string == foxWebhook.previousPost.id_string) {
+	logger->debug(fmt::format("Comparing post id {} to post id {}", post->id_string, foxWebhook.previousPost->id_string));
+	if (post->id_string == foxWebhook.previousPost->id_string) {
 
 		// Return early if there are no new posts.
 		logger->debug("No new post found");
@@ -52,7 +52,7 @@ void checkForNewPost(FoxWebhook &foxWebhook) {
 	}
 
 	// Log that a new post was found.
-	logger->info("New post found! " + post.post_url);
+	logger->info("New post found! " + post->post_url);
 
 	// Get the blog json from the tumblr api.
 	cpr::Response blogResponse = foxWebhook.tumblrApi.getBlogInfoJson(foxWebhook.blog);
@@ -67,35 +67,33 @@ void checkForNewPost(FoxWebhook &foxWebhook) {
 	}
 
 	// Check if the post content is an Image type.
-	if (post.content[0]->type != "image") {
+	if (post->content[0]->type != "postContent") {
 		// TODO Log warning
 		return;
 	}
 
-	// Get the post image to send.
-	auto* image = dynamic_cast<Image *>(post.content[0]);
+	// Get the post postContent to send.
+	Image* postContent = dynamic_cast<Image *>(post->content[0].get());
 
-	Media imageToUse = image->media[0];
+	Media image = postContent->media[0];
 
-	// Try overriding the image if a better one is found.
-	// FIXME
-	for (const Media& newImage : image->media) {
+	// Try overriding the postContent if a better one is found.
+	for (const Media& newImage : postContent->media) {
 		if (newImage.has_original_dimensions) {
-			imageToUse = newImage;
+			image = newImage;
 			break;
 		}
 	}
-	// */
 
 	// Generate the blog from the blog json.
 	Blog blog = Blog::generateBlog(blogResponse.text.c_str());
 
 	// Send the embed.
 	logger->debug("Sending post to discord channel");
-	foxWebhook.discordWebhook.sendEmbed(blog.title, post.post_url, blog.avatar[0]->media[0].url, imageToUse.url);
+	foxWebhook.discordWebhook.sendEmbed(blog.title, post->post_url, blog.avatars[0].url, image.url);
 
 	// And finally reset the previous post to the current post.
-	logger->debug(fmt::format("Setting previous post to {}", post.id_string));
+	logger->debug(fmt::format("Setting previous post to {}", post->id_string));
 	foxWebhook.previousPost = post;
 
 	logger->info("Returning to main function");
@@ -135,7 +133,7 @@ int main() {
 		}
 
 		// Get the post object since the status code was valid.
-		Post post = Post::generatePosts(response.text.c_str())[0];
+		Post* post = Post::generatePosts(response.text.c_str())[0].get();
 
 		// Set the previous post for the webhook to the returned post.
 		foxWebhook.previousPost = post;
@@ -143,6 +141,7 @@ int main() {
 
 	while (true) {
 		try {
+
 			// Iterate through each FoxWebhook and check for a new post.
 			for (FoxWebhook &foxWebhook : foxWebhooks) {
 				checkForNewPost(foxWebhook);

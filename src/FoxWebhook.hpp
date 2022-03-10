@@ -25,10 +25,8 @@ public:
 	 * @param tumblrAPI
 	 * @param discordWebhook
 	 */
-	FoxWebhook(std::string blog, TumblrAPI tumblrAPI, DiscordWebhook discordWebhook) : blog(std::move(blog)),
-	                                                                                   tumblrApi(std::move(tumblrAPI)),
-	                                                                                   discordWebhook(std::move(
-			                                                                                   discordWebhook)) {};
+	FoxWebhook(std::string blog, TumblrAPI tumblrAPI, DiscordWebhook discordWebhook) : blog(std::move(blog)), tumblrApi(std::move(tumblrAPI)),
+	                                                                                   discordWebhook(std::move(discordWebhook)) {};
 
 	/**
 	 * TODO Documentation
@@ -48,7 +46,7 @@ public:
 	/**
 	 * TODO Documentation
 	 */
-	Post previousPost;
+	Post* previousPost = nullptr;
 
 	/**
 	 * TODO Documentation
