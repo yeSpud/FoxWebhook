@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # TumblrAPI
 include(FetchContent)
-FetchContent_Declare(TumblrAPI GIT_REPOSITORY https://github.com/yeSpud/Tumblr-cpp.git GIT_TAG origin/tests)
+FetchContent_Declare(TumblrAPI GIT_REPOSITORY https://github.com/yeSpud/Tumblr-cpp.git GIT_TAG origin/main)
 FetchContent_MakeAvailable(TumblrAPI)
 
 # Add spdlog stuff
