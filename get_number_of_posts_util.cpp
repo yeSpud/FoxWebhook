@@ -41,6 +41,21 @@ unsigned long getInput() {
 	return input;
 }
 
+std::string getLargestImage(const std::vector<Media>& images) {
+
+	std::string largestImage;
+	int largestWidth = 0;
+	for (const Media& image : images) {
+
+		if (image.width > largestWidth) {
+			largestImage = image.url;
+			largestWidth = image.width;
+		}
+	}
+
+	return largestImage;
+}
+
 int main() {
 
 	// Setup the logger.
@@ -102,7 +117,15 @@ int main() {
 		std::reverse(posts.begin(), posts.end());
 		for (std::shared_ptr<Post> post : posts) {
 
-			// TODO post to discord.
+			// Get the blog avatar url.
+			std::string avatarUrl = getLargestImage(blog.avatars);
+
+			// Get the post url.
+			Image* postContent = dynamic_cast<Image *>(post->content[0].get());
+			std::string postUrl = getLargestImage(postContent->media);
+
+			// Post embed to discord.
+			foxWebhook.discordWebhook.sendEmbed(blog.title, post->post_url, avatarUrl, postUrl);
 
 			// Sleep for 5 seconds.
 			sleep(5);
