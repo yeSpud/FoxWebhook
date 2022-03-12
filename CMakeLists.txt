@@ -1,33 +1,23 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.5)
 project(FoxWebhook)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
-# Rapidjson stuff
-include(ExternalProject)
-include("${CMAKE_SOURCE_DIR}/vendor/rapidjson.cmake")
-include_directories(${RAPIDJSON_INCLUDE_DIR})
-
-# CPR stuff
+# TumblrAPI
 include(FetchContent)
-if(WIN32)
-	set(DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-	set(CPR_FORCE_WINSSL_BACKEND ON)
-	set(DCPR_BUILD_TESTS_SSL ON)
-endif(WIN32)
-set(CPR_BUILD_TESTS OFF)
-set(CPR_BUILD_TESTS_SSL OFF)
-FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/whoshuu/cpr.git GIT_TAG origin/master)
-FetchContent_MakeAvailable(cpr)
+FetchContent_Declare(TumblrAPI GIT_REPOSITORY https://github.com/yeSpud/Tumblr-cpp.git GIT_TAG origin/main)
+FetchContent_MakeAvailable(TumblrAPI)
 
-# Spdlog stuff
-add_subdirectory(vendor/spdlog)
-find_package(spdlog)
+# Add spdlog stuff
+#find_package(spdlog REQUIRED)
+FetchContent_Declare(spdlog GIT_REPOSITORY https://github.com/gabime/spdlog.git GIT_TAG v1.9.2)
+FetchContent_MakeAvailable(spdlog)
 
-#add_executable(FoxWebhook main.cpp src/Tumblr/TumblrAPI.hpp src/DiscordWebhook.hpp src/DiscordWebhook.cpp src/FoxWebhook.cpp src/FoxWebhook.hpp)
-FILE(GLOB MyCPPSources src/*.cpp src/Tumblr/*.cpp)
-FILE(GLOB MyHPPSources src/*.hpp src/Tumblr/*.hpp)
+FILE(GLOB MyCPPSources src/*.cpp)
+FILE(GLOB MyHPPSources src/*.hpp)
+
 add_executable(FoxWebhook main.cpp ${MyCPPSources} ${MyHPPSources})
-#add_executable(FoxWebhook main.cpp)
-add_dependencies(FoxWebhook rapidjson)
-target_link_libraries(FoxWebhook PRIVATE cpr::cpr spdlog)
+target_link_libraries(FoxWebhook PRIVATE TumblrAPI::TumblrAPI cpr::cpr spdlog::spdlog)
+
+add_executable(GetNumberOfPostsUtil get_number_of_posts_util.cpp ${MyCPPSources} ${MyHPPSources})
+target_link_libraries(GetNumberOfPostsUtil PRIVATE TumblrAPI::TumblrAPI cpr::cpr spdlog::spdlog)

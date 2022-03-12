@@ -1,5 +1,7 @@
-#include "src/FoxWebhook.hpp"
 #include <spdlog/sinks/basic_file_sink.h>
+#include "src/FoxWebhook.hpp"
+#include <npf/content/image.hpp>
+#include <cpr/cpr.h>
 
 // Add sleep function based on OS
 #ifdef _WIN32
@@ -22,40 +24,58 @@ std::shared_ptr <spdlog::logger> logger;
 /**
  * TODO Documentation
  * @param foxWebhook
+ * @return
+ */
+std::shared_ptr<Post> getMostRecentPost(FoxWebhook foxWebhook) {
+
+	// Get the most recent post from the blog. Start by getting the json.
+	cpr::Response response = foxWebhook.tumblrApi.getPostsJson(foxWebhook.blog, 1);
+
+	// Check the response ode for the post. If it isn't 200 be sure to log as an error and return now.
+	if (response.status_code != 200) {
+
+		logger->error("Unable to get post!\nResponse code {0}.\n{1}", response.status_code, response.text);
+		return nullptr;
+	}
+
+	// Get the posts as a vector for now (for debugging).
+	std::vector<std::shared_ptr<Post>> posts = Post::generatePosts(response.text.c_str());
+
+	// Return the pointer to the first post in the vector.
+	return posts[0];
+}
+
+/**
+ * TODO Documentation
+ * @param foxWebhook
  */
 void checkForNewPost(FoxWebhook &foxWebhook) {
 
-	TumblrAPI tumblrAPI = foxWebhook.getTumblrAPI();
+	// Get the most recent post from the tumblr blog.
+	std::shared_ptr<Post> post = getMostRecentPost(foxWebhook);
 
-	// Get the most recent post from the tumblr blog as json.
-	cpr::Response postResponse = tumblrAPI.getPostsJson(1);
-
-	// Check to see if the response was successful (will return with 200).
-	if (postResponse.status_code != 200) {
+	// Make sure the retrieved post isn't null.
+	if (post == nullptr) {
 
 		// Log that there was an issue retrieving the post and return early.
 		logger->warn("Unable to retrieve most recent post during loop");
 		return;
 	}
 
-	// Generate the post from the json.
-	TumblrAPI::Post post = TumblrAPI::generatePosts(postResponse.text.c_str())[0];
-
 	// Compare the posts.
-	logger->debug(fmt::format("Comparing post id {} to post id {}", post.id_string, foxWebhook.previousPost.id_string));
-	if (post == foxWebhook.previousPost) {
+	logger->debug(fmt::format("Comparing post id {} to post id {}", post->id_string, foxWebhook.previousPost->id_string));
+	if (post->id_string == foxWebhook.previousPost->id_string) {
 
 		// Return early if there are no new posts.
 		logger->debug("No new post found");
 		return;
-
 	}
 
 	// Log that a new post was found.
-	logger->info("New post found! " + post.post_url);
+	logger->info("New post found! " + post->post_url);
 
 	// Get the blog json from the tumblr api.
-	cpr::Response blogResponse = tumblrAPI.getBlogInfoJson();
+	cpr::Response blogResponse = foxWebhook.tumblrApi.getBlogInfoJson(foxWebhook.blog);
 
 	// Verify that the response for retrieving the blog json was successful (will return with 200).
 	if (blogResponse.status_code != 200) {
@@ -66,27 +86,29 @@ void checkForNewPost(FoxWebhook &foxWebhook) {
 		return;
 	}
 
-	// Generate the blog from the blog json.
-	TumblrAPI::Blog blog = TumblrAPI::generateBlog(blogResponse.text.c_str());
+	// Get the content of the post.
+	std::shared_ptr<Content> postContent = post->content[0];
+
+	// Check if the post content is an Image type.
+	if (postContent->type != "image") {
+		logger->warn("New post is not an image post!");
+		return;
+	}
 
 	// Get the post image to send.
-	std::string image = post.content[0].url;
+	std::shared_ptr<Image> image = std::dynamic_pointer_cast<Image>(postContent);
+	Media media = image->media[0];
 
-	// Try overriding the image if a better one is found.
-	for (const Content::Image &newImage : post.content) {
-		if (newImage.has_original_dimensions) {
-			image = newImage.url;
-			break;
-		}
-	}
+	// Generate the blog from the blog json.
+	Blog blog = Blog::generateBlog(blogResponse.text.c_str());
 
 	// Send the embed.
 	logger->debug("Sending post to discord channel");
-	foxWebhook.getDiscordWebhook().sendEmbed(blog.title, post.post_url, blog.avatar[0].url, image);
+	foxWebhook.discordWebhook.sendEmbed(blog.title, post->post_url, blog.avatars[0].url, media.url);
 
 	// And finally reset the previous post to the current post.
-	logger->debug(fmt::format("Setting previous post to {}", post.id_string));
-	foxWebhook.previousPost = std::move(post);
+	logger->debug(fmt::format("Setting previous post to {}", post->id_string));
+	foxWebhook.previousPost = post;
 
 	logger->info("Returning to main function");
 }
@@ -114,25 +136,23 @@ int main() {
 	// Initialize each fox webhook's previous posts.
 	for (FoxWebhook &foxWebhook : foxWebhooks) {
 
-		// Get the most recent post from the blog. Start by getting the json.
-		cpr::Response response = foxWebhook.getTumblrAPI().getPostsJson(1);
+		// Get hte most recent post from the blog.
+		std::shared_ptr<Post> post = getMostRecentPost(foxWebhook);
 
-		// Check the response ode for the post. If it isn't 200 be sure to log as an error and return now.
-		if (response.status_code != 200) {
+		// Make sure the post isn't null.
+		if (post == nullptr) {
 
-			logger->error("Unable to get initial post for blog!");
+			logger->error("Failed to retrieve initial post!");
 			return ErrorCodes::CANNOT_GET_INITIAL_POST;
 		}
 
-		// Get the post object since the status code was valid.
-		TumblrAPI::Post post = TumblrAPI::generatePosts(response.text.c_str())[0];
-
 		// Set the previous post for the webhook to the returned post.
-		foxWebhook.previousPost = std::move(post);
+		foxWebhook.previousPost = post;
 	}
 
 	while (true) {
 		try {
+
 			// Iterate through each FoxWebhook and check for a new post.
 			for (FoxWebhook &foxWebhook : foxWebhooks) {
 				checkForNewPost(foxWebhook);

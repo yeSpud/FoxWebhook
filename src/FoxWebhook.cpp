@@ -3,28 +3,7 @@
 //
 
 #include "FoxWebhook.hpp"
-#include <spdlog/spdlog.h>
-
-bool FoxWebhook::readFromFile(const std::string &filePath, std::string &json) {
-
-	// Try to open the file at the filePath location.
-	std::fstream file;
-	file.open(filePath, std::ios::in);
-
-	// Check if we were successfully able to open the file at this point.
-	if (!file.is_open()) {
-
-		// Log that we were unable to open the file successfully, and return false (error).
-		spdlog::get("Logger")->error("Unable to open file at " + filePath);
-		return false;
-	}
-
-	// Load the content of the file into the string.
-	json.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
-
-	// Return success.
-	return true;
-}
+#include "rapidjson/document.h"
 
 int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webhooks) {
 
@@ -33,6 +12,7 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 
 	// Create a document object to parse the json.
 	rapidjson::Document document;
+	//rapidjson::Document document;
 
 	// Parse the json string into the document.
 	document.Parse(json.c_str());
@@ -50,13 +30,7 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 	}
 
 	// Try to get the json array of webhook information.
-	const rapidjson::Value &entries = document["Webhooks"];
-
-	// Make the entries is a json array.
-	if (!entries.IsArray()) {
-		logger->warn("'Webhooks' is not an array");
-		return ErrorCodes::WEBHOOK_NOT_ARRAY;
-	}
+	JSON_ARRAY entries = document["Webhooks"].GetArray();
 
 	// Iterate though each entry in the webhooks json array.
 	for (rapidjson::SizeType i = 0; i < entries.Size(); i++) {
@@ -68,20 +42,20 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 		}
 
 		// Get the current entry object.
-		auto entry = entries[i].GetObj();
+		JSON_OBJECT entry = entries[i].GetObj();
 
 		// Try parsing the 3 main variables that we care about (webhook, blog, auth).
 		std::string webhook, blog, auth;
-		blog = parseEntry(entry, "BlogURL");
-		auth = parseEntry(entry, "Auth");
-		webhook = parseEntry(entry, "WebhookURL");
+		blog = entry["BlogURL"].GetString();
+		auth = entry["Auth"].GetString();
+		webhook = entry["WebhookURL"].GetString();
 
 		// Create a new TumblrAPI object from the blog and auth variables.
 		if (auth.empty() || blog.empty()) {
 			logger->warn("Cannot create Tumblr API class");
 			continue;
 		}
-		TumblrAPI tumblrApi = TumblrAPI(auth, blog);
+		TumblrAPI tumblrApi = TumblrAPI(auth);
 
 		// Create a new discordWebhook object from the webhook url.
 		if (webhook.empty()) {
@@ -91,21 +65,12 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 		DiscordWebhook discordWebhook = DiscordWebhook(webhook);
 
 		// Create a new FoxWebhook and add the webhook to the vector.
-		FoxWebhook foxWebhook = FoxWebhook(tumblrApi, discordWebhook);
+		FoxWebhook foxWebhook = FoxWebhook(blog, tumblrApi, discordWebhook);
 		webhooks.push_back(foxWebhook);
 	}
 
 	// Return success.
 	return 0;
-}
-
-std::string FoxWebhook::parseEntry(const rapidjson::Value &entry, const std::string &entryValue) { // TODO Comments
-	if (entry.HasMember(entryValue.c_str())) {
-		return entry[entryValue.c_str()].GetString();
-	} else {
-		spdlog::get("Logger")->warn("Missing entry '" + entryValue + "'");
-		return "";
-	}
 }
 
 int FoxWebhook::loadFromConfig(const std::string &filePath, std::vector<FoxWebhook> &foxWebhooks) {
