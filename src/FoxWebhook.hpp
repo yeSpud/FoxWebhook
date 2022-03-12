@@ -46,7 +46,7 @@ public:
 	/**
 	 * TODO Documentation
 	 */
-	Post* previousPost = nullptr;
+	std::shared_ptr<Post> previousPost = nullptr;
 
 	/**
 	 * TODO Documentation

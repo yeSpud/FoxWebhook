@@ -24,22 +24,43 @@ std::shared_ptr <spdlog::logger> logger;
 /**
  * TODO Documentation
  * @param foxWebhook
+ * @return
+ */
+std::shared_ptr<Post> getMostRecentPost(FoxWebhook foxWebhook) {
+
+	// Get the most recent post from the blog. Start by getting the json.
+	cpr::Response response = foxWebhook.tumblrApi.getPostsJson(foxWebhook.blog, 1);
+
+	// Check the response ode for the post. If it isn't 200 be sure to log as an error and return now.
+	if (response.status_code != 200) {
+
+		logger->error("Unable to get post!\nResponse code {0}.\n{1}", response.status_code, response.text);
+		return nullptr;
+	}
+
+	// Get the posts as a vector for now (for debugging).
+	std::vector<std::shared_ptr<Post>> posts = Post::generatePosts(response.text.c_str());
+
+	// Return the pointer to the first post in the vector.
+	return posts[0];
+}
+
+/**
+ * TODO Documentation
+ * @param foxWebhook
  */
 void checkForNewPost(FoxWebhook &foxWebhook) {
 
-	// Get the most recent post from the tumblr blog as json.
-	cpr::Response postResponse = foxWebhook.tumblrApi.getPostsJson(foxWebhook.blog, 1);
+	// Get the most recent post from the tumblr blog.
+	std::shared_ptr<Post> post = getMostRecentPost(foxWebhook);
 
-	// Check to see if the response was successful (will return with 200).
-	if (postResponse.status_code != 200) {
+	// Make sure the retrieved post isn't null.
+	if (post == nullptr) {
 
 		// Log that there was an issue retrieving the post and return early.
 		logger->warn("Unable to retrieve most recent post during loop");
 		return;
 	}
-
-	// Generate the post from the json.
-	Post* post = Post::generatePosts(postResponse.text.c_str())[0].get();
 
 	// Compare the posts.
 	logger->debug(fmt::format("Comparing post id {} to post id {}", post->id_string, foxWebhook.previousPost->id_string));
@@ -67,7 +88,7 @@ void checkForNewPost(FoxWebhook &foxWebhook) {
 	}
 
 	// Check if the post content is an Image type.
-	if (post->content[0]->type != "postContent") {
+	if (post->content[0]->type != "postContent") { // FIXME EXC_BAD_ACCESS here
 		// TODO Log warning
 		return;
 	}
@@ -122,18 +143,15 @@ int main() {
 	// Initialize each fox webhook's previous posts.
 	for (FoxWebhook &foxWebhook : foxWebhooks) {
 
-		// Get the most recent post from the blog. Start by getting the json.
-		cpr::Response response = foxWebhook.tumblrApi.getPostsJson(foxWebhook.blog, 1);
+		// Get hte most recent post from the blog.
+		std::shared_ptr<Post> post = getMostRecentPost(foxWebhook);
 
-		// Check the response ode for the post. If it isn't 200 be sure to log as an error and return now.
-		if (response.status_code != 200) {
+		// Make sure the post isn't null.
+		if (post == nullptr) {
 
-			logger->error("Unable to get initial post for blog!");
+			logger->error("Failed to retrieve initial post!");
 			return ErrorCodes::CANNOT_GET_INITIAL_POST;
 		}
-
-		// Get the post object since the status code was valid.
-		Post* post = Post::generatePosts(response.text.c_str())[0].get();
 
 		// Set the previous post for the webhook to the returned post.
 		foxWebhook.previousPost = post;
