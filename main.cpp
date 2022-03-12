@@ -69,7 +69,6 @@ void checkForNewPost(FoxWebhook &foxWebhook) {
 		// Return early if there are no new posts.
 		logger->debug("No new post found");
 		return;
-
 	}
 
 	// Log that a new post was found.
@@ -87,31 +86,25 @@ void checkForNewPost(FoxWebhook &foxWebhook) {
 		return;
 	}
 
+	// Get the content of the post.
+	std::shared_ptr<Content> postContent = post->content[0];
+
 	// Check if the post content is an Image type.
-	if (post->content[0]->type != "postContent") { // FIXME EXC_BAD_ACCESS here
-		// TODO Log warning
+	if (postContent->type != "image") {
+		logger->warn("New post is not an image post!");
 		return;
 	}
 
-	// Get the post postContent to send.
-	Image* postContent = dynamic_cast<Image *>(post->content[0].get());
-
-	Media image = postContent->media[0];
-
-	// Try overriding the postContent if a better one is found.
-	for (const Media& newImage : postContent->media) {
-		if (newImage.has_original_dimensions) {
-			image = newImage;
-			break;
-		}
-	}
+	// Get the post image to send.
+	std::shared_ptr<Image> image = std::dynamic_pointer_cast<Image>(postContent);
+	Media media = image->media[0];
 
 	// Generate the blog from the blog json.
 	Blog blog = Blog::generateBlog(blogResponse.text.c_str());
 
 	// Send the embed.
 	logger->debug("Sending post to discord channel");
-	foxWebhook.discordWebhook.sendEmbed(blog.title, post->post_url, blog.avatars[0].url, image.url);
+	foxWebhook.discordWebhook.sendEmbed(blog.title, post->post_url, blog.avatars[0].url, media.url);
 
 	// And finally reset the previous post to the current post.
 	logger->debug(fmt::format("Setting previous post to {}", post->id_string));
