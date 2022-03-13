@@ -9,7 +9,6 @@ FetchContent_Declare(TumblrAPI GIT_REPOSITORY https://github.com/yeSpud/Tumblr-c
 FetchContent_MakeAvailable(TumblrAPI)
 
 # Add spdlog stuff
-#find_package(spdlog REQUIRED)
 FetchContent_Declare(spdlog GIT_REPOSITORY https://github.com/gabime/spdlog.git GIT_TAG v1.9.2)
 FetchContent_MakeAvailable(spdlog)
 

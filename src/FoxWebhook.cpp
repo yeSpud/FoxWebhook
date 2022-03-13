@@ -12,7 +12,6 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 
 	// Create a document object to parse the json.
 	rapidjson::Document document;
-	//rapidjson::Document document;
 
 	// Parse the json string into the document.
 	document.Parse(json.c_str());
@@ -112,4 +111,25 @@ int FoxWebhook::loadFromConfig(std::vector<FoxWebhook> &foxWebhooks) {
 
 	// If we've made it this far, return an error.
 	return status;
+}
+
+bool FoxWebhook::readFromFile(const std::string &filePath, std::string &json) {
+
+	// Try to open the file at the filePath location.
+	std::fstream file;
+	file.open(filePath, std::ios::in);
+
+	// Check if we were successfully able to open the file at this point.
+	if (!file.is_open()) {
+
+		// Log that we were unable to open the file successfully, and return false (error).
+		spdlog::get("Logger")->error("Unable to open file at " + filePath);
+		return false;
+	}
+
+	// Load the content of the file into the string.
+	json.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+
+	// Return success.
+	return true;
 }
