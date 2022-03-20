@@ -59,14 +59,20 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 		JSON_OBJECT entry = entries[i].GetObj();
 
 		// Get the fox webhook from the json object.
-		// Because we need to pass values to the constructor this needs to be a pointer.
-		FoxWebhook *foxWebhookPointer;
-		int webhookStatus = loadFoxWebhook(entry, keys, &foxWebhookPointer);
+		std::string retrieveFrom, sendTo, apiKey;
+		int webhookStatus = loadFoxWebhook(entry, keys, retrieveFrom, sendTo, apiKey);
 
 		// Make sure the webhook was loaded successfully before adding it to the vector.
 		switch(webhookStatus){
 			case 0: {
-				webhooks.push_back(*foxWebhookPointer);
+
+				// Create the Tumblr API and DiscordWebhook objects.
+				TumblrAPI tumblrApi = TumblrAPI(apiKey);
+				DiscordWebhook discordWebhook = DiscordWebhook(sendTo);
+
+				// Initialize the webhook.
+				FoxWebhook foxWebhook = FoxWebhook(retrieveFrom, tumblrApi, discordWebhook);
+				webhooks.push_back(foxWebhook);
 				break;
 			}
 			case ErrorCodes::MISSING_RETRIEVE_FROM: {
@@ -125,7 +131,8 @@ std::unordered_map<std::string, std::string> FoxWebhook::loadKeys(const rapidjso
 	return hashmap;
 }
 
-int FoxWebhook::loadFoxWebhook(const JSON_OBJECT &jsonObject, const std::unordered_map<std::string, std::string> &keysMap, FoxWebhook **foxWebhook) {
+int FoxWebhook::loadFoxWebhook(const JSON_OBJECT &jsonObject, const std::unordered_map<std::string, std::string> &keysMap,
+							   std::string &retrieveFrom, std::string &sendTo, std::string &apiKey) {
 
 	// Check if the json object has the retrieve from entry.
 	if (!jsonObject.HasMember(RETRIEVE_FROM)) {
@@ -138,7 +145,7 @@ int FoxWebhook::loadFoxWebhook(const JSON_OBJECT &jsonObject, const std::unorder
 	}
 
 	// Get the retrieve from entry.
-	std::string retrieveFrom = jsonObject[RETRIEVE_FROM].GetString();
+	retrieveFrom = jsonObject[RETRIEVE_FROM].GetString();
 
 	// Check if the json object has the send-to entry.
 	if (!jsonObject.HasMember(SEND_TO)) {
@@ -151,7 +158,7 @@ int FoxWebhook::loadFoxWebhook(const JSON_OBJECT &jsonObject, const std::unorder
 	}
 
 	// Get the send-to entry.
-	std::string sendTo = jsonObject[SEND_TO].GetString();
+	sendTo = jsonObject[SEND_TO].GetString();
 
 	// Check if the json object as a key value.
 	if (!jsonObject.HasMember(KEY)) {
@@ -170,15 +177,7 @@ int FoxWebhook::loadFoxWebhook(const JSON_OBJECT &jsonObject, const std::unorder
 	}
 
 	// Get the key value.
-	std::string keyValue = mapIndex->second;
-
-	// Create the Tumblr API and DiscordWebhook objects.
-	TumblrAPI tumblrApi = TumblrAPI(keyValue);
-	DiscordWebhook discordWebhook = DiscordWebhook(sendTo);
-
-	// Initialize the webhook.
-	FoxWebhook webhook = FoxWebhook(retrieveFrom, tumblrApi, discordWebhook);
-	*foxWebhook = &webhook;
+	apiKey = mapIndex->second;
 
 	// Return success.
 	return 0;

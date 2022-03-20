@@ -101,13 +101,16 @@ private:
 	static std::unordered_map<std::string, std::string> loadKeys(const rapidjson::Document &document);
 
 	/**
-	 * TODO Documentation
+	 *
 	 * @param jsonObject
 	 * @param keysMap
-	 * @param foxWebhook
+	 * @param retrieveFrom
+	 * @param sendTo
+	 * @param apiKey
 	 * @return
 	 */
-	static int loadFoxWebhook(const JSON_OBJECT &jsonObject, const std::unordered_map<std::string, std::string> &keysMap, FoxWebhook** foxWebhook);
+	static int loadFoxWebhook(const JSON_OBJECT &jsonObject, const std::unordered_map<std::string, std::string> &keysMap,
+							  std::string &retrieveFrom, std::string &sendTo, std::string &apiKey);
 };
 
 #endif //FOXWEBHOOK_FOXWEBHOOK_HPP
