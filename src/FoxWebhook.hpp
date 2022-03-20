@@ -25,8 +25,8 @@ public:
 	 * @param tumblrAPI
 	 * @param discordWebhook
 	 */
-	FoxWebhook(std::string blog, TumblrAPI tumblrAPI, DiscordWebhook discordWebhook) : blog(std::move(blog)), tumblrApi(std::move(tumblrAPI)),
-	                                                                                   discordWebhook(std::move(discordWebhook)) {};
+	FoxWebhook(std::string blog, TumblrAPI tumblrAPI, DiscordWebhook discordWebhook) : blog(std::move(blog)),
+	tumblrApi(std::move(tumblrAPI)), discordWebhook(std::move(discordWebhook)) {};
 
 	/**
 	 * TODO Documentation
@@ -50,6 +50,7 @@ public:
 
 	/**
 	 * TODO Documentation
+	 * @param foxWebhooks
 	 * @return
 	 */
 	static int loadFromConfig(std::vector<FoxWebhook> &foxWebhooks);
@@ -57,11 +58,24 @@ public:
 	/**
 	 * TODO Documentation
 	 * @param filePath
+	 * @param foxWebhooks
 	 * @return
 	 */
 	static int loadFromConfig(const std::string &filePath, std::vector<FoxWebhook> &foxWebhooks);
 
 private:
+
+	inline static const char* KEYS = "Keys";
+
+	inline static const char* WEBHOOKS = "Webhooks";
+
+	inline static const char* RETRIEVE_FROM = "Retrieve-From";
+
+	inline static const char* SEND_TO = "Send-To";
+
+	inline static const char* KEY = "Service-Key";
+
+	inline static const char* SERVICE_TUMBLR = "Tumblr";
 
 	/**
 	 * TODO Documentation
@@ -79,6 +93,21 @@ private:
 	 */
 	static int parseJSON(const std::string &json, std::vector<FoxWebhook> &webhooks);
 
+	/**
+	 * TODO Documentation
+	 * @param document
+	 * @return
+	 */
+	static std::unordered_map<std::string, std::string> loadKeys(const rapidjson::Document &document);
+
+	/**
+	 * TODO Documentation
+	 * @param jsonObject
+	 * @param keysMap
+	 * @param foxWebhook
+	 * @return
+	 */
+	static int loadFoxWebhook(const JSON_OBJECT &jsonObject, const std::unordered_map<std::string, std::string> &keysMap, FoxWebhook** foxWebhook);
 };
 
 #endif //FOXWEBHOOK_FOXWEBHOOK_HPP
