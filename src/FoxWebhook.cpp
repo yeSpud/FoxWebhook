@@ -7,67 +7,177 @@
 
 int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webhooks) {
 
-	// Get our logger.
+	// Get the logger.
 	std::shared_ptr<spdlog::logger> logger = spdlog::get("Logger");
 
 	// Create a document object to parse the json.
 	rapidjson::Document document;
-	//rapidjson::Document document;
 
 	// Parse the json string into the document.
 	document.Parse(json.c_str());
 
 	// Check that the parsed json is a valid object.
 	if (!document.IsObject()) {
-		logger->warn("Config is in an invalid format (not a json object)");
+		logger->error("Config is in an invalid format (not a json object).");
 		return ErrorCodes::INVALID_JSON_FORMAT;
 	}
 
+	// Load API keys for services used by the webhooks.
+	std::unordered_map<std::string, std::string> keys = loadKeys(document);
+
+	// Check for missing keys.
+	if (keys.empty()) {
+		logger->error("No API keys in config file.");
+		return ErrorCodes::MISSING_KEYS;
+	}
+
 	// Check that the json object has an element named "Webhooks".
-	if (!document.HasMember("Webhooks")) {
-		logger->warn("Config is missing 'Webhooks' array");
+	if (!document.HasMember(WEBHOOKS)) {
+		logger->error("Config is missing 'Webhooks' array.");
 		return ErrorCodes::MISSING_WEBHOOK;
 	}
 
+	// Make sure the json object named "Webhooks" is a json array type.
+	if (!document[WEBHOOKS].IsArray()) {
+		logger->error("Webhook is not an array type.");
+		return ErrorCodes::WEBHOOK_NOT_ARRAY;
+	}
+
 	// Try to get the json array of webhook information.
-	JSON_ARRAY entries = document["Webhooks"].GetArray();
+	JSON_ARRAY entries = document[WEBHOOKS].GetArray();
 
 	// Iterate though each entry in the webhooks json array.
 	for (rapidjson::SizeType i = 0; i < entries.Size(); i++) {
 
 		// If the entry is not an object, skip it.
 		if (!entries[i].IsObject()) {
-			logger->warn("Entry is not an object");
+			logger->warn("Entry is not an object.");
 			continue;
 		}
 
-		// Get the current entry object.
+		// Get the current webhook entry object.
 		JSON_OBJECT entry = entries[i].GetObj();
 
-		// Try parsing the 3 main variables that we care about (webhook, blog, auth).
-		std::string webhook, blog, auth;
-		blog = entry["BlogURL"].GetString();
-		auth = entry["Auth"].GetString();
-		webhook = entry["WebhookURL"].GetString();
+		// Get the fox webhook from the json object.
+		std::string retrieveFrom, sendTo, apiKey;
+		int webhookStatus = loadFoxWebhook(entry, keys, retrieveFrom, sendTo, apiKey);
 
-		// Create a new TumblrAPI object from the blog and auth variables.
-		if (auth.empty() || blog.empty()) {
-			logger->warn("Cannot create Tumblr API class");
-			continue;
+		// Make sure the webhook was loaded successfully before adding it to the vector.
+		switch(webhookStatus){
+			case 0: {
+
+				// Create the Tumblr API and DiscordWebhook objects.
+				TumblrAPI tumblrApi = TumblrAPI(apiKey);
+				DiscordWebhook discordWebhook = DiscordWebhook(sendTo);
+
+				// Initialize the webhook.
+				FoxWebhook foxWebhook = FoxWebhook(retrieveFrom, tumblrApi, discordWebhook);
+				webhooks.push_back(foxWebhook);
+				break;
+			}
+			case ErrorCodes::MISSING_RETRIEVE_FROM: {
+				// Log missing retrieve from.
+				logger->warn(fmt::format("Missing {} value.", RETRIEVE_FROM));
+				break;
+			}
+			case ErrorCodes::MISSING_SEND_TO: {
+				// Log missing send to.
+				logger->warn(fmt::format("Missing {} value.", SEND_TO));
+				break;
+			}
+			case ErrorCodes::MISSING_KEY: {
+				// Log missing key.
+				logger->warn(fmt::format("Missing {} value.", KEY));
+				break;
+			}
+			default: {
+				// Log general error.
+				logger->warn(fmt::format("Unable to load webhook. Returned value {}", webhookStatus));
+				break;
+			}
 		}
-		TumblrAPI tumblrApi = TumblrAPI(auth);
-
-		// Create a new discordWebhook object from the webhook url.
-		if (webhook.empty()) {
-			logger->warn("Cannot create discord webhook class");
-			continue;
-		}
-		DiscordWebhook discordWebhook = DiscordWebhook(webhook);
-
-		// Create a new FoxWebhook and add the webhook to the vector.
-		FoxWebhook foxWebhook = FoxWebhook(blog, tumblrApi, discordWebhook);
-		webhooks.push_back(foxWebhook);
 	}
+
+	// Return success.
+	return 0;
+}
+
+std::unordered_map<std::string, std::string> FoxWebhook::loadKeys(const rapidjson::Document &document) {
+
+	// Get the logger.
+	std::shared_ptr<spdlog::logger> logger = spdlog::get("Logger");
+
+	// Create a hash map to store the keys for various services.
+	std::unordered_map<std::string, std::string> hashmap;
+
+	// Make sure the document has the key member.
+	if (!document.HasMember(KEYS)) {
+		logger->warn("Config is missing 'Keys' for services");
+		return hashmap;
+	}
+
+	// Load the keys from the object.
+	rapidjson::GenericObject<true, rapidjson::GenericValue<rapidjson::UTF8<>>::ValueType> keys = document[KEYS].GetObj();
+
+	// Get the tumblr API key.
+	if (keys.HasMember(SERVICE_TUMBLR)) {
+		logger->info("Loaded tumblr API key");
+		hashmap[SERVICE_TUMBLR] = keys[SERVICE_TUMBLR].GetString();
+	}
+
+	// TODO Add check for other services.
+
+	// Return the hashmap.
+	return hashmap;
+}
+
+int FoxWebhook::loadFoxWebhook(const JSON_OBJECT &jsonObject, const std::unordered_map<std::string, std::string> &keysMap,
+							   std::string &retrieveFrom, std::string &sendTo, std::string &apiKey) {
+
+	// Check if the json object has the retrieve from entry.
+	if (!jsonObject.HasMember(RETRIEVE_FROM)) {
+		return ErrorCodes::MISSING_RETRIEVE_FROM;
+	}
+
+	// Make sure that the retrieve from entry is a string type.
+	if (!jsonObject[RETRIEVE_FROM].IsString()) {
+		return ErrorCodes::MISSING_RETRIEVE_FROM;
+	}
+
+	// Get the retrieve from entry.
+	retrieveFrom = jsonObject[RETRIEVE_FROM].GetString();
+
+	// Check if the json object has the send-to entry.
+	if (!jsonObject.HasMember(SEND_TO)) {
+		return ErrorCodes::MISSING_SEND_TO;
+	}
+
+	// Make sure that the send-to entry is a string type.
+	if (!jsonObject[SEND_TO].IsString()) {
+		return ErrorCodes::MISSING_SEND_TO;
+	}
+
+	// Get the send-to entry.
+	sendTo = jsonObject[SEND_TO].GetString();
+
+	// Check if the json object as a key value.
+	if (!jsonObject.HasMember(KEY)) {
+		return ErrorCodes::MISSING_KEY;
+	}
+
+	// Check if the key is a string type.
+	if (!jsonObject[KEY].IsString()) {
+		return ErrorCodes::MISSING_KEY;
+	}
+
+	// Check if the key is in the hash map. TODO Move this away from auto.
+	auto mapIndex = keysMap.find(jsonObject[KEY].GetString());
+	if (mapIndex == keysMap.end()) {
+		return ErrorCodes::MISSING_KEY;
+	}
+
+	// Get the key value.
+	apiKey = mapIndex->second;
 
 	// Return success.
 	return 0;
@@ -112,4 +222,25 @@ int FoxWebhook::loadFromConfig(std::vector<FoxWebhook> &foxWebhooks) {
 
 	// If we've made it this far, return an error.
 	return status;
+}
+
+bool FoxWebhook::readFromFile(const std::string &filePath, std::string &json) {
+
+	// Try to open the file at the filePath location.
+	std::fstream file;
+	file.open(filePath, std::ios::in);
+
+	// Check if we were successfully able to open the file at this point.
+	if (!file.is_open()) {
+
+		// Log that we were unable to open the file successfully, and return false (error).
+		spdlog::get("Logger")->error("Unable to open file at " + filePath);
+		return false;
+	}
+
+	// Load the content of the file into the string.
+	json.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+
+	// Return success.
+	return true;
 }
