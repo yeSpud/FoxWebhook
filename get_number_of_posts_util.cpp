@@ -115,7 +115,7 @@ int main() {
 		std::vector<std::shared_ptr<Post>> posts = Post::generatePosts(postsJson.text.c_str());
 
 		std::reverse(posts.begin(), posts.end());
-		for (std::shared_ptr<Post> post : posts) {
+		for (const std::shared_ptr<Post>& post : posts) {
 
 			// Get the blog avatar url.
 			std::string avatarUrl = getLargestImage(blog.avatars);
@@ -125,7 +125,12 @@ int main() {
 			std::string postUrl = getLargestImage(postContent->media);
 
 			// Post embed to discord.
-			foxWebhook.discordWebhook.sendEmbed(blog.title, post->post_url, avatarUrl, postUrl);
+			cpr::Response response = foxWebhook.discordWebhook.sendEmbed(blog.title, post->post_url, avatarUrl, postUrl);
+
+			if (response.error.code == cpr::ErrorCode::INTERNAL_ERROR) {
+				logger->error("Error sending message to discord channel (internal cUrl error)!");
+				return ErrorCodes::CANNOT_SEND_TO_DISCORD_CHANNEL;
+			}
 
 			// Sleep for 5 seconds.
 			sleep(5);

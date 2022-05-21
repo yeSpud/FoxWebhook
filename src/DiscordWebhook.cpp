@@ -10,7 +10,10 @@ cpr::Response DiscordWebhook::sendWebhook(const std::string &json) { // TODO Com
 
 	cpr::Body body = cpr::Body{json};
 	cpr::Header header = cpr::Header{{"Content-Type", "application/json"}};
-	cpr::Response response = cpr::Post(cpr::Url{webhookURL}, body, header, cpr::VerifySsl(false));
+	cpr::Url url = cpr::Url{webhookURL};
+	//cpr::SslOptions sslOpts = cpr::Ssl(cpr::ssl::TLSv1_3{});
+	cpr::VerifySsl verifySsl = cpr::VerifySsl{false};
+	cpr::Response response = cpr::Post(url, body, header, verifySsl);
 
 	return response;
 

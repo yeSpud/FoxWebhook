@@ -34,7 +34,7 @@ std::shared_ptr<Post> getMostRecentPost(FoxWebhook foxWebhook) {
 	// Check the response ode for the post. If it isn't 200 be sure to log as an error and return now.
 	if (response.status_code != 200) {
 
-		logger->error("Unable to get post!\nResponse code {0}.\n{1}", response.status_code, response.text);
+		logger->error("Unable to get post!\nResponse code: {0}.\nResponse text: {1}\nError message: {2}", response.status_code, response.text, response.error.message);
 		return nullptr;
 	}
 
