@@ -26,6 +26,8 @@ public:
 
 	const static int CANNOT_GET_INITIAL_POST = -9;
 
+	const static int CANNOT_SEND_TO_DISCORD_CHANNEL = -10;
+
 };
 
 
