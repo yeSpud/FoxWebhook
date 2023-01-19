@@ -18,5 +18,8 @@ FILE(GLOB MyHPPSources src/*.hpp)
 add_executable(FoxWebhook main.cpp ${MyCPPSources} ${MyHPPSources})
 target_link_libraries(FoxWebhook PRIVATE TumblrAPI::TumblrAPI cpr::cpr spdlog::spdlog)
 
+add_executable(cron cron.cpp ${MyCPPSources} ${MyHPPSources})
+target_link_libraries(cron PRIVATE TumblrAPI::TumblrAPI cpr::cpr spdlog::spdlog)
+
 add_executable(GetNumberOfPostsUtil get_number_of_posts_util.cpp ${MyCPPSources} ${MyHPPSources})
 target_link_libraries(GetNumberOfPostsUtil PRIVATE TumblrAPI::TumblrAPI cpr::cpr spdlog::spdlog)
