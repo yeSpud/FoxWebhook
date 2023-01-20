@@ -28,35 +28,35 @@ int main(int argc, char** argv) {
 	std::shared_ptr<Post> post = Post::generatePosts(postResponse.text.c_str())[0];
 
 	if (post == nullptr) {
+
 		// Treat as no new post and exit early.
 		return 0;
 	}
 
-	std::fstream file;
-	file.open("most_recent.url", std::ios::in | std::ios::out | std::ios::trunc);
+	std::ifstream infile("most_recent.url");
+	if (infile) {
 
-	if (file) {
-
-		// File exists - read from file.
+		// File exists - read from infile.
 		std::string mostRecentUrl;
-		file >> mostRecentUrl;
+		infile >> mostRecentUrl;
+		infile.close();
 
 		if (mostRecentUrl == post->post_url) {
 
 			// Post has not changed, so just return.
-			file.close();
 			return 0;
 		}
-	} else {
+	}
 
+	// Overwrite file content (or create a new one if it didnt exist).
+	std::ofstream outfile("most_recent.url", std::ios::trunc);
+	if (!outfile) {
 		std::cerr << "Unable to open file stream" << std::endl;
 		return -2;
 	}
 
-	// Overwrite file - first clear the EOF / fail state if it exists.
-	file.clear();
-	file << post->post_url;
-	file.close();
+	outfile << post->post_url << std::endl;
+	outfile.close();
 
 	std::shared_ptr<Image> postImage = std::dynamic_pointer_cast<Image>(post->content[0]);
 	webhook.sendEmbed(post->blog->title, post->post_url, post->blog->avatars[0].url, postImage->media[0].url);
