@@ -3,8 +3,7 @@
 //
 
 #include <iostream>
-#include "src/DiscordWebhook.hpp"
-#include "TumblrAPI.hpp"
+#include "include/DiscordWebhook.hpp"
 
 #define APIKEY argv[3]
 #define BLOG argv[2]
@@ -17,11 +16,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	DiscordWebhook webhook = DiscordWebhook(WEBHOOK);
-	TumblrAPI tumblrApi = TumblrAPI(APIKEY);
-
-	cpr::Response postResponse = tumblrApi.getPostsJson(BLOG, 1);
-
+	cpr::Response postResponse = cpr::Get(cpr::Url{"https://api.tumblr.com/v2/blog/", BLOG, "/posts?api_key=", APIKEY, "&npf=true&limit=1"});
 	if (postResponse.status_code != 200) {
 		std::cerr << "Unable to get most recent post: " << postResponse.status_code << std::endl;
 		return 1;
@@ -139,10 +134,11 @@ int main(int argc, char** argv) {
 	 * Here we want the blog title and avatar url.
 	 */
 	rapidjson::GenericObject<false, rapidjson::Value> blog = responseJson["blog"].GetObj();
+	std::string avatarUrl = blog["avatar"].GetArray()[0].GetObj()["url"].GetString();
+	std::string postContentImage = post["content"].GetArray()[0].GetObj()["media"].GetArray()[0].GetObj()["url"].GetString();
 
-
-	cpr::Response response = webhook.sendEmbed(blog["title"].GetString(), postUrl, blog["avatar"].GetArray()[0].GetObj()["url"].GetString(), post["content"].GetArray()[0].GetObj()["media"].GetArray()[0].GetObj()["url"].GetString());
-
+	DiscordWebhook webhook = DiscordWebhook(WEBHOOK);
+	cpr::Response response = webhook.sendEmbed(blog["title"].GetString(), postUrl, avatarUrl, postContentImage);
 	if (response.status_code != 200) {
 		std::cerr << "Could not send embed: " << response.text << std::endl;
 		return 2;

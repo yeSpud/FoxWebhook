@@ -2,9 +2,9 @@
 // Created by Spud on 4/24/2021.
 //
 
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
 #include "DiscordWebhook.hpp"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/writer.h"
 
 cpr::Response DiscordWebhook::sendWebhook(const std::string &json) { // TODO Comments
 

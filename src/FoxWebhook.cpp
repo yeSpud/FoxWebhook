@@ -44,7 +44,7 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 	}
 
 	// Try to get the json array of webhook information.
-	JSON_ARRAY entries = document[WEBHOOKS].GetArray();
+	rapidjson::GenericArray<false, rapidjson::Value> entries = document[WEBHOOKS].GetArray();
 
 	// Iterate though each entry in the webhooks json array.
 	for (rapidjson::SizeType i = 0; i < entries.Size(); i++) {
@@ -56,7 +56,7 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 		}
 
 		// Get the current webhook entry object.
-		JSON_OBJECT entry = entries[i].GetObj();
+		rapidjson::GenericObject<false, rapidjson::Value> entry = entries[i].GetObj();
 
 		// Get the fox webhook from the json object.
 		std::string retrieveFrom, sendTo, apiKey;
@@ -66,12 +66,10 @@ int FoxWebhook::parseJSON(const std::string &json, std::vector<FoxWebhook> &webh
 		switch(webhookStatus){
 			case 0: {
 
-				// Create the Tumblr API and DiscordWebhook objects.
-				TumblrAPI tumblrApi = TumblrAPI(apiKey);
 				DiscordWebhook discordWebhook = DiscordWebhook(sendTo);
 
 				// Initialize the webhook.
-				FoxWebhook foxWebhook = FoxWebhook(retrieveFrom, tumblrApi, discordWebhook);
+				FoxWebhook foxWebhook = FoxWebhook(retrieveFrom, apiKey, discordWebhook);
 				webhooks.push_back(foxWebhook);
 				break;
 			}
@@ -131,7 +129,7 @@ std::unordered_map<std::string, std::string> FoxWebhook::loadKeys(const rapidjso
 	return hashmap;
 }
 
-int FoxWebhook::loadFoxWebhook(const JSON_OBJECT &jsonObject, const std::unordered_map<std::string, std::string> &keysMap,
+int FoxWebhook::loadFoxWebhook(const rapidjson::GenericObject<false, rapidjson::Value>& jsonObject, const std::unordered_map<std::string, std::string> &keysMap,
 							   std::string &retrieveFrom, std::string &sendTo, std::string &apiKey) {
 
 	// Check if the json object has the retrieve from entry.

@@ -2,11 +2,10 @@
 // Created by Spud on 3/10/22.
 //
 
-#include <spdlog/sinks/basic_file_sink.h>
-#include "src/FoxWebhook.hpp"
+#include "spdlog/sinks/basic_file_sink.h"
+#include "include/FoxWebhook.hpp"
 #include <iostream>
-#include <cpr/cpr.h>
-#include <npf/content/image.hpp>
+#include "cpr/cpr.h"
 
 // Add sleep function based on OS
 #ifdef _WIN32

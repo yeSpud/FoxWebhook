@@ -5,7 +5,7 @@
 #ifndef FOXWEBHOOK_DISCORDWEBHOOK_HPP
 #define FOXWEBHOOK_DISCORDWEBHOOK_HPP
 
-#include <cpr/cpr.h>
+#include "cpr/cpr.h"
 #include "rapidjson/document.h"
 
 /**

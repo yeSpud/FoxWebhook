@@ -8,13 +8,8 @@
 #include <fstream>
 #include "DiscordWebhook.hpp"
 #include "ErrorCodes.hpp"
-#include "TumblrAPI.hpp"
-#include "post.hpp"
 #include "spdlog/spdlog.h"
 
-/**
- * TODO Documentation
- */
 class FoxWebhook {
 
 public:
@@ -25,28 +20,23 @@ public:
 	 * @param tumblrAPI
 	 * @param discordWebhook
 	 */
-	FoxWebhook(std::string blog, TumblrAPI tumblrAPI, DiscordWebhook discordWebhook) : blog(std::move(blog)),
-	tumblrApi(std::move(tumblrAPI)), discordWebhook(std::move(discordWebhook)) {};
+	FoxWebhook(std::string blog, std::string key, DiscordWebhook discordWebhook) : blog(std::move(blog)),
+	key(std::move(key)),discordWebhook(std::move(discordWebhook)) {};
 
 	/**
-	 * TODO Documentation
+	 * The blog's url.
 	 */
 	const std::string blog;
 
 	/**
-	 * TODO Documentation
+	 * The key used by the relevant api.
 	 */
-	TumblrAPI tumblrApi;
+	const std::string key;
 
 	/**
-	 * TODO Documentation
+	 * The discord webhook object used to send messages to the discord channel.
 	 */
 	DiscordWebhook discordWebhook;
-
-	/**
-	 * TODO Documentation
-	 */
-	std::shared_ptr<Post> previousPost = nullptr;
 
 	/**
 	 * TODO Documentation
@@ -109,8 +99,9 @@ private:
 	 * @param apiKey
 	 * @return
 	 */
-	static int loadFoxWebhook(const JSON_OBJECT &jsonObject, const std::unordered_map<std::string, std::string> &keysMap,
-							  std::string &retrieveFrom, std::string &sendTo, std::string &apiKey);
+	static int loadFoxWebhook(const rapidjson::GenericObject<false, rapidjson::Value> &jsonObject,
+							  const std::unordered_map<std::string,std::string> &keysMap,std::string &retrieveFrom,
+							  std::string &sendTo, std::string &apiKey);
 };
 
 #endif //FOXWEBHOOK_FOXWEBHOOK_HPP

@@ -1,5 +1,5 @@
 #include <spdlog/sinks/basic_file_sink.h>
-#include "src/FoxWebhook.hpp"
+#include "include/FoxWebhook.hpp"
 #include <npf/content/image.hpp>
 #include <cpr/cpr.h>
 
