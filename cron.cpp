@@ -58,8 +58,20 @@ int main(int argc, char** argv) {
 	outfile << post->post_url << std::endl;
 	outfile.close();
 
+	// Get the relevant blog information for the post.
+	cpr::Response blogResponse = tumblrApi.getBlogInfoJson(argv[2]);
+	if (blogResponse.status_code != 200) {
+		std::cerr << "Unable to retrieve blog information: " << blogResponse.text << std::endl;
+		return 2;
+	}
+	Blog blog = Blog::generateBlog(blogResponse.text.c_str());
 	std::shared_ptr<Image> postImage = std::dynamic_pointer_cast<Image>(post->content[0]);
-	webhook.sendEmbed(post->blog->title, post->post_url, post->blog->avatars[0].url, postImage->media[0].url);
+	cpr::Response response = webhook.sendEmbed(blog.title, post->post_url, blog.avatars[0].url, postImage->media[0].url);
+
+	if (response.status_code != 200) {
+		std::cerr << "Could not send embed: " << response.text << std::endl;
+		return -3;
+	}
 
 	return 0;
 }
