@@ -106,3 +106,9 @@ fabric.properties
 *.app
 
 /config.json
+!/Makefile
+/_deps/
+!/cmake_install.cmakeS
+!/CMakeCache.txt
+!/FoxWebhook.cbp
+/CMakeFiles/

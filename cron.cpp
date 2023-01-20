@@ -33,7 +33,6 @@ int main(int argc, char** argv) {
 	}
 
 	std::fstream file;
-	//std::fstream file("most_recent.url", std::ios::out | std::ios::trunc);
 	file.open("most_recent.url", std::ios::in | std::ios::out | std::ios::trunc);
 
 	if (file) {
@@ -60,7 +59,7 @@ int main(int argc, char** argv) {
 	file.close();
 
 	std::shared_ptr<Image> postImage = std::dynamic_pointer_cast<Image>(post->content[0]);
-	//webhook.sendEmbed(post->blog->title, post->post_url, post->blog->avatars[0].url, postImage->media[0].url);
+	webhook.sendEmbed(post->blog->title, post->post_url, post->blog->avatars[0].url, postImage->media[0].url);
 
 	return 0;
 }
