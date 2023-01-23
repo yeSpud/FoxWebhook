@@ -25,7 +25,7 @@ private:
 	 * @param json
 	 * @return
 	 */
-	cpr::Response sendWebhook(const std::string &json);
+	cpr::Response sendWebhook(const std::string &json) const;
 
 	/**
 	 * TODO Documentation
@@ -74,7 +74,7 @@ public:
 	 * @return
 	 */
 	cpr::Response sendEmbed(const std::string &blogname, const std::string &postURL, const std::string &blogAvatar,
-	                        const std::string &postImageURL);
+	                        const std::string &postImageURL) const;
 
 };
 

@@ -6,7 +6,7 @@
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 
-cpr::Response DiscordWebhook::sendWebhook(const std::string &json) { // TODO Comments
+cpr::Response DiscordWebhook::sendWebhook(const std::string &json) const { // TODO Comments
 
 	cpr::Body body = cpr::Body{json};
 	cpr::Header header = cpr::Header{{"Content-Type", "application/json"}};
@@ -28,7 +28,7 @@ cpr::Response DiscordWebhook::sendMessage(const std::string &message) { // TODO 
 
 cpr::Response
 DiscordWebhook::sendEmbed(const std::string &blogname, const std::string &postURL, const std::string &blogAvatar,
-                          const std::string &postImageURL) { // TODO Comments
+                          const std::string &postImageURL) const { // TODO Comments
 
 	std::string json = formatJson("", blogname, postURL, blogAvatar, postImageURL);
 

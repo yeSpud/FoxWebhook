@@ -1,12 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(FoxWebhook)
-
 set(CMAKE_CXX_STANDARD 17)
-
-# TumblrAPI
 include(FetchContent)
-#FetchContent_Declare(TumblrAPI GIT_REPOSITORY https://github.com/yeSpud/Tumblr-cpp.git GIT_TAG origin/main)
-#FetchContent_MakeAvailable(TumblrAPI)
 
 # cpr
 cmake_policy(SET CMP0079 NEW)
@@ -21,7 +16,7 @@ FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git GIT_TA
 FetchContent_MakeAvailable(cpr)
 
 # Add spdlog stuff
-FetchContent_Declare(spdlog GIT_REPOSITORY https://github.com/gabime/spdlog.git GIT_TAG v1.9.2)
+FetchContent_Declare(spdlog GIT_REPOSITORY https://github.com/gabime/spdlog.git GIT_TAG v1.11.0)
 FetchContent_MakeAvailable(spdlog)
 
 include_directories(./include)
