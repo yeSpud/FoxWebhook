@@ -29,7 +29,7 @@ unsigned long getInput(const FoxWebhook& foxWebhook) {
 
 	// Get the number of posts to get for each foxWebhook.
 	unsigned long input = 0;
-	std::cout << "How many posts should be retrieved for " << foxWebhook.blog << "? "; // << std::endl; // no new lines.
+	std::cout << "How many posts should be retrieved from " << foxWebhook.blog << "? "; // << std::endl; // no new lines.
 	std::cin >> input;
 
 	// Validate user input.
@@ -88,7 +88,7 @@ int main() {
 		std::string avatarUrl = blog["avatar"].GetArray()[0].GetObj()["url"].GetString();
 
 		rapidjson::GenericArray<false, rapidjson::Value> posts = postsJson["posts"].GetArray();
-		std::reverse(posts.begin(), posts.end());
+		std::reverse(posts.Begin(), posts.End());
 
 		for (auto& post : posts) {
 
