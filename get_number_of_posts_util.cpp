@@ -93,7 +93,7 @@ int main() {
 		logger->info(fmt::format("Blog response json vvv\n{}\n", blogJson.text));
 
 		// Create an actual blog object.
-		Blog blog = Blog::generateBlog(blogJson.text.c_str());
+		Blog blog = Blog::generateBlog(blogJson.text);
 
 		// Get the number of posts to retrieve.
 		unsigned long input = getInput();
@@ -111,7 +111,7 @@ int main() {
 		logger->info(fmt::format("Posts response json vvv\n{}\n", postsJson.text));
 
 		// Generate posts from the response postsJson.
-		std::vector<std::shared_ptr<Post>> posts = Post::generatePosts(postsJson.text.c_str());
+		std::vector<std::shared_ptr<Post>> posts = Post::generatePosts(postsJson.text);
 
 		std::reverse(posts.begin(), posts.end());
 		for (const std::shared_ptr<Post>& post : posts) {

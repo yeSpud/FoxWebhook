@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
 	 * Here we want to get the first item in the posts array.
 	 */
 	rapidjson::Document returnedJson;
-	returnedJson.Parse(postResponse.text.c_str());
+	returnedJson.Parse(postResponse.text);
 	rapidjson::GenericObject<false, rapidjson::Value> responseJson = returnedJson["response"].GetObj();
 
 	/*

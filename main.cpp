@@ -22,11 +22,12 @@ std::shared_ptr <spdlog::logger> logger;
 void checkForNewPost(FoxWebhook &foxWebhook) {
 
 	// Get the most recent post from the blog. Start by getting the json.
-	cpr::Response response = cpr::Get(cpr::Url{"https://api.tumblr.com/v2/blog/", foxWebhook.blog, "/posts?api_key=", foxWebhook.key, "&npf=true&limit=1"});
+	cpr::Response response = cpr::Get(cpr::Url{"https://api.tumblr.com/v2/blog/", foxWebhook.blog, "/posts?api_key=",
+											   foxWebhook.key, "&npf=true&limit=1"});
 
 	// Check the response ode for the post. If it isn't 200 be sure to log as an error and return now.
 	rapidjson::Document returnedJson;
-	returnedJson.Parse(response.text.c_str());
+	returnedJson.Parse(response.text);
 	if (response.status_code != 200) {
 		logger->warn("Unable to get post!\nResponse code: {0}.\nResponse text: {1}\nError message: {2}", response.status_code,
 		             response.text, response.error.message);
@@ -37,7 +38,8 @@ void checkForNewPost(FoxWebhook &foxWebhook) {
 	rapidjson::GenericObject<false, rapidjson::Value> post = responseJson["posts"].GetArray()[0].GetObj();
 
 	// Compare the posts.
-	logger->debug(fmt::format("Comparing post id {} to post id {}", post["id_string"].GetString(), foxWebhook.previousPost["id_string"].GetString()));
+	logger->debug(fmt::format("Comparing post id {} to post id {}", post["id_string"].GetString(),
+							  foxWebhook.previousPost["id_string"].GetString()));
 	if (post["id"].GetInt64() == foxWebhook.previousPost["id"].GetInt64()) {
 		logger->debug("No new post found");
 		return;

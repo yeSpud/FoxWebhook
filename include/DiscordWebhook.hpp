@@ -8,22 +8,17 @@
 #include "cpr/cpr.h"
 #include "rapidjson/document.h"
 
-/**
- * TODO Documentation
- */
 class DiscordWebhook {
 
 private:
 
 	/**
-	 * TODO Documentation
+	 * The url of the webhook.
 	 */
 	const std::string webhookURL;
 
 	/**
-	 * TODO Documentation
-	 * @param json
-	 * @return
+	 * Sends a message to the channel.
 	 */
 	cpr::Response sendWebhook(const std::string &json) const;
 

@@ -76,9 +76,9 @@ std::string DiscordWebhook::formatJson(const std::string &message, const std::st
 void DiscordWebhook::setStringKeyValueObject(const std::string &key, const std::string &value, rapidjson::Value &object,
                                              rapidjson::MemoryPoolAllocator<> &allocator) { // TODO Comments
 	rapidjson::Value keyString(rapidjson::kStringType);
-	keyString.SetString(key.c_str(), allocator);
+	keyString.SetString(key, allocator);
 	rapidjson::Value valueString(rapidjson::kStringType);
-	valueString.SetString(value.c_str(), allocator);
+	valueString.SetString(value, allocator);
 	object.AddMember(keyString, valueString, allocator);
 }
 

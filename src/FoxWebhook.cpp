@@ -95,7 +95,7 @@ int parseJSON(const std::string &json, std::vector<FoxWebhook> &webhooks) {
 	rapidjson::Document document;
 
 	// Parse the json string into the document.
-	document.Parse(json.c_str());
+	document.Parse(json);
 
 	// Check that the parsed json is a valid object.
 	if (!document.IsObject()) {
