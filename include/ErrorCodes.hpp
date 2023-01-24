@@ -4,7 +4,7 @@
 
 #ifndef FOXWEBHOOK_ERRORCODES_HPP
 #define FOXWEBHOOK_ERRORCODES_HPP
-class ErrorCodes {
+class [[deprecated("Soon to be removed")]] ErrorCodes {
 
 public:
 

@@ -2,11 +2,11 @@
 // Created by Spud on 4/24/2021.
 //
 
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
 #include "DiscordWebhook.hpp"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/writer.h"
 
-cpr::Response DiscordWebhook::sendWebhook(const std::string &json) { // TODO Comments
+cpr::Response DiscordWebhook::sendWebhook(const std::string &json) const { // TODO Comments
 
 	cpr::Body body = cpr::Body{json};
 	cpr::Header header = cpr::Header{{"Content-Type", "application/json"}};
@@ -28,7 +28,7 @@ cpr::Response DiscordWebhook::sendMessage(const std::string &message) { // TODO 
 
 cpr::Response
 DiscordWebhook::sendEmbed(const std::string &blogname, const std::string &postURL, const std::string &blogAvatar,
-                          const std::string &postImageURL) { // TODO Comments
+                          const std::string &postImageURL) const { // TODO Comments
 
 	std::string json = formatJson("", blogname, postURL, blogAvatar, postImageURL);
 
@@ -76,9 +76,9 @@ std::string DiscordWebhook::formatJson(const std::string &message, const std::st
 void DiscordWebhook::setStringKeyValueObject(const std::string &key, const std::string &value, rapidjson::Value &object,
                                              rapidjson::MemoryPoolAllocator<> &allocator) { // TODO Comments
 	rapidjson::Value keyString(rapidjson::kStringType);
-	keyString.SetString(key.c_str(), allocator);
+	keyString.SetString(key, allocator);
 	rapidjson::Value valueString(rapidjson::kStringType);
-	valueString.SetString(value.c_str(), allocator);
+	valueString.SetString(value, allocator);
 	object.AddMember(keyString, valueString, allocator);
 }
 
