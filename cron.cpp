@@ -11,7 +11,7 @@
 
 int main(int argc, char** argv) {
 
-	if (argc != 4) {
+	if (argc != 4) { // TODO Add usage for reading from config file when no arguments are provided.
 		std::cerr << "Usage: ./cron <webhook url> <blog url> <api key>" << std::endl;
 		return -1;
 	}
