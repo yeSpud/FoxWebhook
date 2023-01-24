@@ -7,7 +7,7 @@ include(FetchContent)
 FetchContent_Declare(
         cpr
         GIT_REPOSITORY https://github.com/libcpr/cpr.git
-        GIT_TAG a2d35a1cb9f3f7e2f1469d6a189751331dc99f96 #db351ffbbadc6c4e9239daaa26e9aefa9f0ec82d
+        GIT_TAG 47438c7c73d61463520b27759ea58ffb03a31cec #db351ffbbadc6c4e9239daaa26e9aefa9f0ec82d
         CMAKE_ARGS
             -DCPR_BUILD_TESTS=OFF
             -DCPR_BUILD_TESTS_SSL=OFF
@@ -16,8 +16,6 @@ if (WIN32)
     set(DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
     set(CPR_FORCE_WINSSL_BACKEND ON)
 endif (WIN32)
-set(CPR_ENABLE_LINTING ON)
-set(CPR_ENABLE_CPPCHECK ON)
 
 # rapidjson
 #FetchContent_Declare(

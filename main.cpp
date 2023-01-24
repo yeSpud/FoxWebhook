@@ -25,10 +25,10 @@ void checkForNewPost(FoxWebhook &foxWebhook) {
 	cpr::Response response = cpr::Get(cpr::Url{"https://api.tumblr.com/v2/blog/", foxWebhook.blog, "/posts?api_key=",
 											   foxWebhook.key, "&npf=true&limit=1"});
 
-	// Check the response ode for the post. If it isn't 200 be sure to log as an error and return now.
+	// Check the response code for the post. If it isn't 200 be sure to log as an error and return now.
 	rapidjson::Document returnedJson;
 	returnedJson.Parse(response.text);
-	if (response.status_code != 200) {
+	if (response.status_code >= 400) {
 		logger->warn("Unable to get post!\nResponse code: {0}.\nResponse text: {1}\nError message: {2}", response.status_code,
 		             response.text, response.error.message);
 		return;

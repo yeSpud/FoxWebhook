@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include "include/DiscordWebhook.hpp"
+#include "DiscordWebhook.hpp"
 
 #define APIKEY argv[3]
 #define BLOG argv[2]
@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
 	}
 
 	cpr::Response postResponse = cpr::Get(cpr::Url{"https://api.tumblr.com/v2/blog/", BLOG, "/posts?api_key=", APIKEY, "&npf=true&limit=1"});
-	if (postResponse.status_code != 200) {
+	if (postResponse.status_code >= 400) {
 		std::cerr << "Unable to get most recent post: " << postResponse.status_code << std::endl;
 		return 1;
 	}
@@ -139,7 +139,7 @@ int main(int argc, char** argv) {
 
 	DiscordWebhook webhook = DiscordWebhook(WEBHOOK);
 	cpr::Response response = webhook.sendEmbed(blog["title"].GetString(), postUrl, avatarUrl, postContentImage);
-	if (response.status_code != 200) {
+	if (response.status_code >= 400) {
 		std::cerr << "Could not send embed: " << response.text << std::endl;
 		return 2;
 	}
