@@ -20,7 +20,7 @@ std::unordered_map<std::string, std::string> loadKeys(const rapidjson::Value &js
 	}
 
 	// Load the keys from the object.
-	rapidjson::GenericObject<true, rapidjson::GenericValue<rapidjson::UTF8<>>::ValueType> keys = json[FOXWEBHOOK_KEYS].GetObj();
+	rapidjson::GenericObject keys = json[FOXWEBHOOK_KEYS].GetObj();
 
 	// Get the tumblr API key.
 	if (keys.HasMember(SERVICE_TUMBLR)) {
@@ -70,7 +70,7 @@ void parseJSON(const std::string &json, std::vector<FoxWebhook> &foxWebhooks) {
 	}
 
 	// Try to get the json array of webhook information.
-	rapidjson::GenericArray<false, rapidjson::Value> webhooks = document[FOXWEBHOOK_WEBHOOKS].GetArray();
+	rapidjson::GenericArray webhooks = document[FOXWEBHOOK_WEBHOOKS].GetArray();
 
 	// Iterate though each entry in the foxWebhooks json array.
 	for (auto &webhookEntry : webhooks) {

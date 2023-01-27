@@ -8,6 +8,7 @@
 #include <fstream>
 #include <utility>
 #include "DiscordWebhook.hpp"
+#include "rapidjson/document.h"
 #include "spdlog/spdlog.h"
 
 #define FOXWEBHOOK_KEYS "Keys"
@@ -36,8 +37,6 @@ public:
 	 */
 	FoxWebhook(std::string blog, std::string key, DiscordWebhook webhook) : blog(std::move(blog)), key(std::move(key)),
 	                                                                        discordWebhook(std::move(webhook)) {};
-
-	FoxWebhook() = delete;
 
 	FoxWebhook(const FoxWebhook &copy) : blog(copy.blog), key(copy.key), discordWebhook(copy.discordWebhook) {
 
@@ -69,7 +68,7 @@ public:
 	/**
 	 * The discord webhook object used to send messages to the discord channel.
 	 */
-	const DiscordWebhook discordWebhook;
+	DiscordWebhook discordWebhook;
 
 	/**
 	 * The previous post corresponding to this entry.

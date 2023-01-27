@@ -50,9 +50,14 @@ void checkForNewPost(FoxWebhook &foxWebhook) {
 	std::string avatarUrl = blog["avatar"].GetArray()[0].GetObj()["url"].GetString();
 	std::string postContentImage = post["content"].GetArray()[0].GetObj()["media"].GetArray()[0].GetObj()["url"].GetString();
 
-	// Send the embed.
-	logger->debug("Sending post to discord channel");
-	foxWebhook.discordWebhook.sendEmbed(blog["title"].GetString(), post["post_url"].GetString(), avatarUrl, postContentImage);
+	Embed embed;
+	embed.author.name = std::string(blog["title"].GetString()) + " has a new post";
+	embed.author.url = post["post_url"].GetString();
+	embed.author.icon_url = avatarUrl;
+	embed.image.url = postContentImage;
+
+	foxWebhook.discordWebhook.appendEmbed(embed);
+	foxWebhook.discordWebhook.send();
 
 	// And finally reset the previous post to the current post.
 	logger->debug(fmt::format("Setting previous post to {}", post["id_string"].GetString()));
@@ -71,7 +76,7 @@ int main() {
 	logger->info("Starting up script...");
 
 	// Load the FoxWebhooks from the config file.
-	std::vector <FoxWebhook> foxWebhooks;
+	std::vector<FoxWebhook> foxWebhooks;
 	int status = FoxWebhook::loadFromConfig(foxWebhooks);
 
 	// If the status from the config was not 0, return the status.
