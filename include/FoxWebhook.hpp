@@ -6,17 +6,19 @@
 #define FOXWEBHOOK_FOXWEBHOOK_HPP
 
 #include <fstream>
+#include <utility>
 #include "DiscordWebhook.hpp"
+#include "rapidjson/document.h"
 #include "spdlog/spdlog.h"
 
-#define KEYS "Keys"
-#define WEBHOOKS "Webhooks"
-#define RETRIEVE_FROM "Retrieve-From"
-#define SEND_TO "Send-To"
-#define KEY "Service-Key"
+#define FOXWEBHOOK_KEYS "Keys"
+#define FOXWEBHOOK_WEBHOOKS "Webhooks"
+#define FOXWEBHOOK_RETRIEVE_FROM "Retrieve-From"
+#define FOXWEBHOOK_SEND_TO "Send-To"
+#define FOXWEBHOOK_KEY "Service-Key"
 
 /**
- * SUPPORTED SERVICES
+ * CURRENTLY SUPPORTED SERVICES
  */
 #define SERVICE_TUMBLR "Tumblr"
 
@@ -24,10 +26,17 @@ class FoxWebhook {
 
 public:
 
+	/**
+	 * Manually create a FoxWebhook object with the blog string, the api key, and the url for the webhook.
+	 */
 	FoxWebhook(std::string blog, std::string key, std::string webhookUrl) : blog(std::move(blog)), key(std::move(key)),
 	                                                                        discordWebhook(DiscordWebhook(std::move(webhookUrl))) {};
 
-	FoxWebhook() = delete;
+	/**
+	 * Manually create a FoxWebhook object with the blog string, the api key, and a DiscordWebhook object.
+	 */
+	FoxWebhook(std::string blog, std::string key, DiscordWebhook webhook) : blog(std::move(blog)), key(std::move(key)),
+	                                                                        discordWebhook(std::move(webhook)) {};
 
 	FoxWebhook(const FoxWebhook &copy) : blog(copy.blog), key(copy.key), discordWebhook(copy.discordWebhook) {
 
@@ -59,7 +68,7 @@ public:
 	/**
 	 * The discord webhook object used to send messages to the discord channel.
 	 */
-	const DiscordWebhook discordWebhook;
+	DiscordWebhook discordWebhook;
 
 	/**
 	 * The previous post corresponding to this entry.
@@ -68,6 +77,7 @@ public:
 
 	/**
 	 * Loads FoxWebhooks from the config file.
+	 * The config file is assumed to be in either the parent directory, or the current working directory if that should fail.
 	 */
 	static int loadFromConfig(std::vector<FoxWebhook> &foxWebhooks);
 

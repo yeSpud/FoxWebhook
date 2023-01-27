@@ -29,11 +29,11 @@ unsigned long getInput(const FoxWebhook& foxWebhook) {
 
 	// Get the number of posts to get for each foxWebhook.
 	unsigned long input = 0;
-	std::cout << "How many posts should be retrieved from " << foxWebhook.blog << "? "; // << std::endl; // no new lines.
+	std::cout << "How many posts should be retrieved from " << foxWebhook.blog << "? (max 10) "; // << std::endl; // no new lines.
 	std::cin >> input;
 
 	// Validate user input.
-	while (std::cin.fail()) {
+	while (std::cin.fail() || input > 10) {
 
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -83,27 +83,28 @@ int main() {
 			continue;
 		}
 
-		rapidjson::GenericObject<false, rapidjson::Value> postsJson = document["response"].GetObj();
-		rapidjson::GenericObject<false, rapidjson::Value> blog = postsJson["blog"].GetObj();
+		rapidjson::GenericObject postsJson = document["response"].GetObj();
+		rapidjson::GenericObject blog = postsJson["blog"].GetObj();
 		std::string avatarUrl = blog["avatar"].GetArray()[0].GetObj()["url"].GetString();
 
-		rapidjson::GenericArray<false, rapidjson::Value> posts = postsJson["posts"].GetArray();
+		rapidjson::GenericArray posts = postsJson["posts"].GetArray();
 		std::reverse(posts.Begin(), posts.End());
 
 		for (auto& post : posts) {
 
-			// Post embed to discord.
-			std::string postContentImage = post["content"].GetArray()[0].GetObj()["media"].GetArray()[0].GetObj()["url"].GetString();
-			cpr::Response discordResponse = foxWebhook.discordWebhook.sendEmbed(blog["title"].GetString(), post["post_url"].GetString(),
-			                                                                    avatarUrl, postContentImage);
+			Embed embed;
+			embed.author.name = "Post by " + std::string(blog["title"].GetString());
+			embed.author.url = post["post_url"].GetString();
+			embed.author.icon_url = avatarUrl;
+			embed.image.url = post["content"].GetArray()[0].GetObj()["media"].GetArray()[0].GetObj()["url"].GetString();
 
-			if (discordResponse.status_code >= 400) {
-				logger->warn("An error occurred sending posts via the webhook!\nResponse code {0}.\n{1}", discordResponse.status_code,
-				             discordResponse.text);
-			}
+			foxWebhook.discordWebhook.appendEmbed(embed);
+		}
 
-			// Sleep for 5 seconds.
-			sleep(5);
+		cpr::Response discordResponse = foxWebhook.discordWebhook.send();
+		if (discordResponse.status_code >= 400) {
+			logger->warn("An error occurred sending posts via the webhook!\nResponse code {0}.\n{1}", discordResponse.status_code,
+			             discordResponse.text);
 		}
 	}
 

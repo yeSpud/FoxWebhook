@@ -6,7 +6,71 @@
 #define FOXWEBHOOK_DISCORDWEBHOOK_HPP
 
 #include "cpr/cpr.h"
-#include "rapidjson/document.h"
+
+class Embed {
+
+public:
+
+	struct Footer {
+		std::string text;
+		std::string icon_url;
+		std::string proxy_icon_url;
+	};
+
+	struct Image {
+		std::string url;
+		std::string proxy_url;
+		unsigned int height = 0;
+		unsigned int width = 0;
+	};
+
+	struct Provider {
+		std::string name;
+		std::string url;
+	};
+
+	struct Author {
+		std::string name;
+		std::string url;
+		std::string icon_url;
+		std::string proxy_icon_url;
+	};
+
+	struct Field {
+		std::string name;
+		std::string value;
+		bool Inline;
+	};
+
+	std::string title;
+
+	//std::string type = "rich";
+
+	std::string description;
+
+	std::string url;
+
+	/**
+	 * ISO8601 timestamp
+	 */
+	std::string timestamp;
+
+	int color = 0;
+
+	Footer footer;
+
+	Image image;
+
+	Image thumbnail;
+
+	Image video;
+
+	Provider provider;
+
+	Author author;
+
+	std::vector<Field> fields;
+};
 
 class DiscordWebhook {
 
@@ -17,59 +81,79 @@ private:
 	 */
 	const std::string webhookURL;
 
-	/**
-	 * Sends a message to the channel.
-	 */
-	cpr::Response sendWebhook(const std::string &json) const;
+	std::string content;
 
 	/**
-	 * TODO Documentation
-	 * @param message
-	 * @param blogname
-	 * @param postURL
-	 * @param blogAvatar
-	 * @param postImageURL
-	 * @return
+	 * Embeds to be sent.
 	 */
-	static std::string formatJson(const std::string &message, const std::string &blogname,
-	                              const std::string &postURL, const std::string &blogAvatar,
-	                              const std::string &postImageURL);
+	std::vector<Embed> embeds;
+
+	void mswap(DiscordWebhook& other) noexcept {
+		std::swap(other.content, content);
+		std::swap(other.embeds, embeds);
+	}
 
 	/**
-	 * TODO Documentation
-	 * @param key
-	 * @param value
-	 * @param object
-	 * @param allocator
+	 * Sends a message to the channel determined by the json.
 	 */
-	static void setStringKeyValueObject(const std::string &key, const std::string &value, rapidjson::Value &object,
-	                                    rapidjson::MemoryPoolAllocator<> &allocator);
+	[[nodiscard]] cpr::Response sendWebhook(const std::string &json) const;
 
 public:
 
 	/**
-	 * TODO Documentation
-	 * @param webhookURL
+	 * Creates a discord webhook object from a given url.
 	 */
-	explicit DiscordWebhook(std::string webhookURL) : webhookURL(std::move(webhookURL)) {};
+	explicit DiscordWebhook(std::string webhookURL): webhookURL(std::move(webhookURL)) {};
 
 	/**
-	 * TODO Documentation
-	 * @param message
-	 * @return
+	 * Creates a discord webhook object from just the ID and token.
 	 */
-	cpr::Response sendMessage(const std::string &message);
+	DiscordWebhook(const std::string& id, const std::string& token):webhookURL("https://discord.com/api/webhooks/" + id + "/" + token) {}
+
+	DiscordWebhook(const DiscordWebhook& copy) = default;
+
+	DiscordWebhook& operator=(const DiscordWebhook& rhs) {
+
+		// Make a copy.
+		DiscordWebhook copy(rhs);
+
+		// Swap.
+		mswap(copy);
+
+		return *this;
+	}
+
+	DiscordWebhook(DiscordWebhook&& rhs) noexcept : webhookURL(rhs.webhookURL), content(rhs.content), embeds(rhs.embeds) {};
+
+	DiscordWebhook& operator=(DiscordWebhook&& rhs) noexcept {
+
+		// Swap.
+		mswap(rhs);
+
+		return *this;
+	}
 
 	/**
-	 * TODO Documentation
-	 * @param blogname
-	 * @param postURL
-	 * @param blogAvatar
-	 * @param postImageURL
-	 * @return
+	 * Set the message to be sent to the channel.
 	 */
-	cpr::Response sendEmbed(const std::string &blogname, const std::string &postURL, const std::string &blogAvatar,
-	                        const std::string &postImageURL) const;
+	void setMessage(const std::string& message) {
+		content = message;
+	}
+
+	/**
+	 * Adds an embed object to be sent to the channel - multiple embeds (max 10) can be sent.
+	 * @param embed
+	 */
+	void appendEmbed(const Embed& embed) {
+		if (embeds.size() <= 10) {
+			embeds.push_back(embed);
+		}
+	}
+
+	/**
+	 * Sends the message and any embeds to the channel.
+	 */
+	cpr::Response send();
 
 };
 
