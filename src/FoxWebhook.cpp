@@ -34,7 +34,7 @@ std::unordered_map<std::string, std::string> loadKeys(const rapidjson::Value &js
 	return hashmap;
 }
 
-void parseJSON(const std::string &json, std::vector<FoxWebhook> &foxWebhooks) {
+int parseJSON(const std::string &json, std::vector<FoxWebhook> &foxWebhooks) {
 
 	// Get the logger.
 	std::shared_ptr<spdlog::logger> logger = spdlog::get("Logger");
@@ -45,7 +45,7 @@ void parseJSON(const std::string &json, std::vector<FoxWebhook> &foxWebhooks) {
 
 	if (document.HasParseError()) {
 		logger->error(fmt::format("Unable to parse file: {}", rapidjson::GetParseError_En(document.GetParseError())));
-		return;
+		return 3;
 	}
 
 	// Load API keys for services used by the foxWebhooks.
@@ -54,19 +54,19 @@ void parseJSON(const std::string &json, std::vector<FoxWebhook> &foxWebhooks) {
 	// Check for missing keys.
 	if (keys.empty()) {
 		logger->error("No API keys were found in the config file.");
-		return;
+		return 4;
 	}
 
 	// Check that the json object has an element named "Webhooks".
 	if (!document.HasMember(FOXWEBHOOK_WEBHOOKS)) {
 		logger->error("Config is missing 'Webhooks' array.");
-		return;
+		return 5;
 	}
 
 	// Make sure the json object named "Webhooks" is a json array type.
 	if (!document[FOXWEBHOOK_WEBHOOKS].IsArray()) {
 		logger->error("Webhook is not an array type.");
-		return;
+		return 6;
 	}
 
 	// Try to get the json array of webhook information.
@@ -90,7 +90,7 @@ void parseJSON(const std::string &json, std::vector<FoxWebhook> &foxWebhooks) {
 
 		std::string sendTo;
 		if (webhookEntry.HasMember(FOXWEBHOOK_SEND_TO)) {
-			if (webhookEntry.IsString()) {
+			if (webhookEntry[FOXWEBHOOK_SEND_TO].IsString()) {
 				sendTo = webhookEntry[FOXWEBHOOK_SEND_TO].GetString();
 			}
 		}
@@ -112,6 +112,8 @@ void parseJSON(const std::string &json, std::vector<FoxWebhook> &foxWebhooks) {
 		FoxWebhook foxWebhook = FoxWebhook(retrieveFrom, keyLocation->second, sendTo);
 		foxWebhooks.push_back(foxWebhook);
 	}
+
+	return 0;
 }
 
 int FoxWebhook::loadFromConfig(const std::string &filePath, std::vector<FoxWebhook> &foxWebhooks) {
@@ -130,19 +132,17 @@ int FoxWebhook::loadFromConfig(const std::string &filePath, std::vector<FoxWebho
 	}
 
 	// Load the content of the file into the string.
-	std::string input;
-	file >> input;
+	std::stringstream buffer;
+	buffer << file.rdbuf();
 	file.close();
 
 	// Try parsing the config file into our buffer of FoxWebhooks.
 	try {
-		parseJSON(input, foxWebhooks);
+		return parseJSON(buffer.str(), foxWebhooks);
 	} catch (const std::exception& exception) {
 		logger->error(fmt::format("Error occurred in parsing the config file: {}", exception.what()));
 		return 2;
 	}
-
-	return 0;
 }
 
 int FoxWebhook::loadFromConfig(std::vector<FoxWebhook> &foxWebhooks) {
