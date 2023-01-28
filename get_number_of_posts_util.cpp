@@ -7,19 +7,6 @@
 #include <iostream>
 #include "cpr/cpr.h"
 
-// Add sleep function based on OS
-#ifdef _WIN32
-
-#include <windows.h> // Windows sleep
-
-#define sleep(seconds){Sleep(seconds * 1000);}
-
-#else
-
-#include <unistd.h> // UNIX sleep
-
-#endif
-
 /**
  * Logger used by script.
  */
@@ -74,7 +61,7 @@ int main() {
 
 		// Fetch the posts json data from the tumblr api.
 		cpr::Response response = cpr::Get(cpr::Url({"https://api.tumblr.com/v2/blog/", foxWebhook.blog, "/posts?api_key=",
-													foxWebhook.key, "&npf=true&limit=", std::to_string(input)}));
+													foxWebhook.key, "&type=photo&npf=true&limit=", std::to_string(input)}));
 
 		rapidjson::Document document;
 		document.Parse(response.text);
@@ -96,7 +83,15 @@ int main() {
 			embed.author.name = "Post by " + std::string(blog["title"].GetString());
 			embed.author.url = post["post_url"].GetString();
 			embed.author.icon_url = avatarUrl;
-			embed.image.url = post["content"].GetArray()[0].GetObj()["media"].GetArray()[0].GetObj()["url"].GetString();
+
+			rapidjson::GenericObject content = post["content"].GetArray()[0].GetObj();
+			std::string contentType = content["type"].GetString();
+			if (contentType == "image") {
+
+				embed.image.url = content["media"].GetArray()[0].GetObj()["url"].GetString();
+			} else {
+				logger->warn("Unable to handle post type: " + contentType);
+			}
 
 			foxWebhook.discordWebhook.appendEmbed(embed);
 		}
