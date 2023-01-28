@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 
 	for (FoxWebhook foxWebhook : foxWebhooks) {
 		cpr::Response postResponse = cpr::Get(cpr::Url{"https://api.tumblr.com/v2/blog/", foxWebhook.blog, "/posts?api_key=",
-													   foxWebhook.key, "&npf=true&limit=1"});
+													   foxWebhook.key, "&type=photo&npf=true&limit=1"});
 		if (postResponse.status_code >= 400) {
 			logger->error("Unable to get most recent post ({0}): {1}", postResponse.status_code, postResponse.text);
 			return 1;
@@ -139,15 +139,25 @@ int main(int argc, char** argv) {
 		 */
 		rapidjson::GenericObject blog = responseJson["blog"].GetObj();
 		std::string avatarUrl = blog["avatar"].GetArray()[0].GetObj()["url"].GetString();
-		std::string postContentImage = post["content"].GetArray()[0].GetObj()["media"].GetArray()[0].GetObj()["url"].GetString();
 
 		Embed embed;
 		embed.author.name = std::string(blog["title"].GetString()) + " has a new post";
 		embed.author.url = postUrl;
 		embed.author.icon_url = avatarUrl;
-		embed.image.url = postContentImage;
 
+		rapidjson::GenericObject content = post["content"].GetArray()[0].GetObj();
+		std::string contentType = content["type"].GetString();
+		if (contentType == "image") {
+
+			embed.image.url = content["media"].GetArray()[0].GetObj()["url"].GetString();
+		} else /*if (contentType == "text"){
+
+			embed.description = content["text"].GetString();
+		} else */ {
+			logger->warn("Unable to handle post type: " + contentType);
+		}
 		foxWebhook.discordWebhook.appendEmbed(embed);
+		
 		cpr::Response response = foxWebhook.discordWebhook.send();
 		if (response.status_code >= 400) {
 			logger->error(fmt::format("Could not send embed ({0}): {1}", response.status_code, response.text));
