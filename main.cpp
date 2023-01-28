@@ -23,7 +23,7 @@ void checkForNewPost(FoxWebhook &foxWebhook) {
 
 	// Get the most recent post from the blog. Start by getting the json.
 	cpr::Response response = cpr::Get(cpr::Url{"https://api.tumblr.com/v2/blog/", foxWebhook.blog, "/posts?api_key=",
-											   foxWebhook.key, "&npf=true&limit=1"});
+											   foxWebhook.key, "&type=photo&npf=true&limit=1"});
 
 	// Check the response code for the post. If it isn't 200 be sure to log as an error and return now.
 	rapidjson::Document returnedJson;
@@ -44,17 +44,25 @@ void checkForNewPost(FoxWebhook &foxWebhook) {
 		logger->debug("No new post found");
 		return;
 	}
-	logger->info(fmt::format("New post found! {}", post["post_url"].GetString()));
+	std::string postUrl = post["post_url"].GetString();
+	logger->info(fmt::format("New post found! {}", postUrl));
 
 	rapidjson::GenericObject<false, rapidjson::Value> blog = responseJson["blog"].GetObj();
 	std::string avatarUrl = blog["avatar"].GetArray()[0].GetObj()["url"].GetString();
-	std::string postContentImage = post["content"].GetArray()[0].GetObj()["media"].GetArray()[0].GetObj()["url"].GetString();
 
 	Embed embed;
 	embed.author.name = std::string(blog["title"].GetString()) + " has a new post";
-	embed.author.url = post["post_url"].GetString();
+	embed.author.url = postUrl;
 	embed.author.icon_url = avatarUrl;
-	embed.image.url = postContentImage;
+
+	rapidjson::GenericObject content = post["content"].GetArray()[0].GetObj();
+	std::string contentType = content["type"].GetString();
+	if (contentType == "image") {
+
+		embed.image.url = content["media"].GetArray()[0].GetObj()["url"].GetString();
+	} else {
+		logger->warn("Unable to handle post type: " + contentType);
+	}
 
 	foxWebhook.discordWebhook.appendEmbed(embed);
 	foxWebhook.discordWebhook.send();
